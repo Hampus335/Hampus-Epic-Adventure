@@ -9,6 +9,11 @@ public static class Player
 
 public class Room
 {
+    public Room(string v)
+    {
+        
+    }
+
     internal string HandleInput(string input)
     {
         throw new NotImplementedException();
@@ -26,7 +31,14 @@ public static class Program
 {
     public static void Main()
     {
-        Console.WriteLine("You are in a room. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.");
+        //setupae2
+        var home = new Room("You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.");
+        var basement = new Room("You are now in the basement."); 
+        var garden = new Room("You are now in your garden.");
+
+        // begin gameplay
+        var gameRunning = true;
+        GameState.CurrentRoom = home;
 
         while (GameState.GameRunning)
         {
@@ -40,6 +52,7 @@ public static class Program
             // try handle global command
 
             // if we can't, pass it to the room
+
     
             return GameState.CurrentRoom.HandleInput(input);
         }
