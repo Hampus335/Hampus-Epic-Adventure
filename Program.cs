@@ -10,16 +10,20 @@ public static class Player
 public class Room
 {
     public string Description { get; set; }
-    public string Exits { get; set; }
-    public Room(string description, string exits)
+    public Dictionary<string, Room> Exits { get; set; } = new();
+    public Room(string description)
     {
         Description = description;
-        Exits = exits;
     }
 
     internal string HandleInput(string input)
     {
-        
+        if (Exits.TryGetValue(input, out var room))
+        {
+            GameState.CurrentRoom = room;
+            return room.Description;
+        }
+        return null;
     }
 }
 
@@ -35,9 +39,12 @@ public static class Program
     public static void Main()
     {
         //setup
-        var home = new Room("You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.", "north");
+        var home = new Room("You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out");
         var basement = new Room("You are now in the basement."); 
         var garden = new Room("You are now in your garden.");
+
+        home.Exits.Add("basement", basement);
+        home.Exits.Add("go out", garden);
 
         // begin gameplay
         GameState.GameRunning = true;
@@ -50,6 +57,8 @@ public static class Program
             string input = Console.ReadLine()!;
 
             var response = HandleInput(input);
+            Console.Clear();
+            Console.WriteLine(response);
         }
 
         string HandleInput(string input)
