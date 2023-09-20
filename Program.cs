@@ -9,14 +9,17 @@ public static class Player
 
 public class Room
 {
-    public Room(string v)
+    public string Description { get; set; }
+    public string Exits { get; set; }
+    public Room(string description, string exits)
     {
-        
+        Description = description;
+        Exits = exits;
     }
 
     internal string HandleInput(string input)
     {
-        throw new NotImplementedException();
+        
     }
 }
 
@@ -31,14 +34,16 @@ public static class Program
 {
     public static void Main()
     {
-        //setupae2
-        var home = new Room("You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.");
+        //setup
+        var home = new Room("You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.", "north");
         var basement = new Room("You are now in the basement."); 
         var garden = new Room("You are now in your garden.");
 
         // begin gameplay
-        var gameRunning = true;
+        GameState.GameRunning = true;
         GameState.CurrentRoom = home;
+
+        Console.WriteLine(GameState.CurrentRoom.Description);
 
         while (GameState.GameRunning)
         {
@@ -52,8 +57,10 @@ public static class Program
             // try handle global command
 
             // if we can't, pass it to the room
-
-    
+            if (input.ToLower() == "quit" || input.ToLower() == "exit")
+            {
+                Environment.Exit(0);
+            }
             return GameState.CurrentRoom.HandleInput(input);
         }
     }
