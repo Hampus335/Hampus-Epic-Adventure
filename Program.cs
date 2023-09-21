@@ -45,6 +45,7 @@ public static class Program
 
         home.Exits.Add("basement", basement);
         home.Exits.Add("go out", garden);
+        basement.Exits.Add("go back", home);
 
         // begin gameplay
         GameState.GameRunning = true;
