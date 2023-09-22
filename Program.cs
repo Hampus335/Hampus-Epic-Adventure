@@ -11,9 +11,11 @@ public class Room
 {
     public string Description { get; set; }
     public Dictionary<string, Room> Exits { get; set; } = new();
-    public Room(string description)
+    public string Name { get; set; }
+    public Room(string name, string description)
     {
         Description = description;
+        Name = name;
     }
 
     internal string HandleInput(string input)
@@ -21,6 +23,7 @@ public class Room
         if (Exits.TryGetValue(input, out var room))
         {
             GameState.CurrentRoom = room;
+            GameState.VisitedRoom(room.Name);
             return room.Description;
         }
         return null;
@@ -32,6 +35,20 @@ public static class GameState
     public static bool GameRunning;
 
     public static Room CurrentRoom { get; internal set; }
+
+    static HashSet<string> visitedRooms = new HashSet<string>();
+
+    public static void VisitedRoom(string roomName)
+    {
+        HashSet<string> visitedRooms = new HashSet<string>();
+        visitedRooms.Add(roomName);
+    }
+
+    internal static void HelpPlayer()
+    {
+        Console.WriteLine($"To get away from this place, you have {String.Join(",", CurrentRoom.Exits.Keys)} as an option.");
+        return;
+    }
 }
 
 public static class Program
@@ -39,9 +56,9 @@ public static class Program
     public static void Main()
     {
         //setup
-        var home = new Room("You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out");
-        var basement = new Room("You are now in the basement."); 
-        var garden = new Room("You are now in your garden.");
+        var home = new Room("home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.");
+        var basement = new Room("basement", "You are now in the basement."); 
+        var garden = new Room("garden", "You are now in your garden.");
 
         home.Exits.Add("basement", basement);
         home.Exits.Add("go out", garden);
@@ -70,6 +87,10 @@ public static class Program
             if (input.ToLower() == "quit" || input.ToLower() == "exit")
             {
                 Environment.Exit(0);
+            }
+            if (input.ToLower() == "help")
+            {
+                GameState.HelpPlayer();
             }
             return GameState.CurrentRoom.HandleInput(input);
         }
