@@ -24,6 +24,8 @@ public class Room
 
     internal string HandleInput(string input)
     {
+        //command handler for specific room
+
         if (GameState.DetailedDescription(input))
         {
             return GameState.CurrentRoom.Description + GameState.CurrentRoom.DetailedDescription;
@@ -55,7 +57,7 @@ public static class GameState
 
     internal static void HelpPlayer()
     {
-        Console.WriteLine($"To get away from this place, you have {String.Join(", and", CurrentRoom.Exits.Keys)} as an option.");
+        Console.WriteLine($"To get away from this place, you have {String.Join(", and ", CurrentRoom.Exits.Keys)} as an option.");
         return;
     }
 
@@ -133,6 +135,7 @@ public static class Program
             if (input.ToLower() == "help")
             {
                 GameState.HelpPlayer();
+                return 
             }
             return GameState.CurrentRoom.HandleInput(input);
         }
