@@ -11,22 +11,22 @@ public class Room
 {
     public string Description { get; set; }
     public Dictionary<string, Room> Exits { get; set; } = new();
+    public string Slug { get; set; }
     public string Name { get; set; }
     public string DetailedDescription { get; set; }
-    public int ID { get; set; }
-    public Room(string name, string description, string detailedDescription, int id)
+    public Room(string slug, string name, string description, string detailedDescription, int id)
     {
-        Description = description;
+        Slug = slug;
         Name = name;
+        Description = description;
         DetailedDescription = detailedDescription;
-        ID = id;
     }
 
     internal string HandleInput(string input)
     {
         if (GameState.DetailedDescription(input))
         {
-            return GameState.CurrentRoom.DetailedDescription;
+            return GameState.CurrentRoom.Description + GameState.CurrentRoom.DetailedDescription;
         }
         else if (Exits.TryGetValue(input, out var room))
         {
@@ -74,9 +74,9 @@ public static class Program
     public static void Main()
     {
         //setup
-        var home = new Room("home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.", "When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.", 1);
-        var basement = new Room("basement", "You are now in the basement.", "You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench, hinting at various hobbies and pastimes. The air carries a faint scent of old books and wood.", 2); 
-        var garden = new Room("garden", "You are now in your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery. The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere.", 3);
+        var home = new Room("homeSpawn", "home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.", "When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.", 1);
+        var basement = new Room("homeBasement", "basement", "You are now in the basement.", "You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench, hinting at various hobbies and pastimes. The air carries a faint scent of old books and wood.", 2); 
+        var garden = new Room("garden", "garden", "You are now in your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery. The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere.", 3);
 
         home.Exits.Add("basement", basement);
         home.Exits.Add("go out", garden);
