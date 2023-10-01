@@ -3,11 +3,7 @@
 public class Player
 {
     public static int Health = 100;
-    public List<Item> Inventory = new List<Item> ();
-    public Player(List<Item> inventory)
-    {
-        Inventory = inventory;
-    }
+    public List<Item> Inventory = new List<Item>();
 }
 
 public class Room
@@ -79,9 +75,14 @@ public static class Program
     public static void Main()
     {
         //setup
-        var home = new Room("homeSpawn", "home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.", "When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.", 1);
-        var basement = new Room("homeBasement", "basement", "You are now in the basement.", "You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench, hinting at various hobbies and pastimes. The air carries a faint scent of old books and wood.", 2); 
-        var garden = new Room("garden", "garden", "You are now in your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery. The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
+        var home = new Room("homeSpawn", "home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.",
+            " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.", 1);
+        var 
+            basement = new Room("homeBasement", "basement", "You are now in the basement.", " You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench," +
+            " hinting at various hobbies and pastimes."+" The air carries a faint scent of old books and wood. There is a key in the corner of the room.", 2); 
+        
+        var garden = new Room("garden", "garden", "You are now in your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery." +
+            " The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
             "There is a big rusty gate that is covered in vines and greenery."
             , 3);
 
@@ -89,6 +90,8 @@ public static class Program
         home.Exits.Add("go down", basement);
         home.Exits.Add("go out", garden);
         basement.Exits.Add("go back", home);
+        basement.Exits.Add("back", home);
+        basement.Exits.Add("go up", home); basement.Exits.Add("go back", home);
         garden.Exits.Add("go inside", home);
 
 
@@ -141,9 +144,12 @@ public static class Program
             {
                 return GameState.HelpPlayer();
             }
-            if (input.ToLower() == "show inventory")
+                if (input.ToLower() == "show inventory" || input.ToLower() == "inventory")
             {
-                foreach (/*inventory*/)
+                foreach (var item in GameState.Player.Inventory)
+                {
+                    Console.WriteLine($"{item}");
+                }
             }
             return GameState.CurrentRoom.HandleInput(input);
         }
