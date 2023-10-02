@@ -13,7 +13,7 @@ public class Room
     public string Slug { get; set; }
     public string Name { get; set; }
     public string DetailedDescription { get; set; }
-    public Room(string slug, string name, string description, string detailedDescription, int id)
+    public Room(string slug, string name, string description, string detailedDescription)
     {
         Slug = slug;
         Name = name;
@@ -31,10 +31,12 @@ public class Room
         }
         else if (Exits.TryGetValue(input, out var room))
         {
-            GameState.CurrentRoom = room;
-            GameState.VisitedRoom(room.Name);
-            
-            return room.Description;
+            if (GameState.CheckVisitedRoom(room.Slug))
+            {
+                GameState.VisitedRoom(room);
+                return room.Name;
+            }
+            else return room.Description;
         }
         else return null;
     }
@@ -47,13 +49,24 @@ public static class GameState
     public static bool GameRunning;
     public static Room CurrentRoom { get; internal set; }
 
-    static HashSet<string> visitedRooms = new HashSet<string>();
+    static HashSet<string> VisitedRooms = new HashSet<string>();
 
-    public static void VisitedRoom(string roomName)
+    public static void VisitedRoom(Room room)
     {
-        HashSet<string> visitedRooms = new HashSet<string>();
-        visitedRooms.Add(roomName);
+        GameState.CurrentRoom = room;
+        VisitedRooms.Add(room.Slug);
     }
+
+    public static bool CheckVisitedRoom(string room)
+    {
+        //check if room has been visited
+        if (VisitedRooms.Contains(room))
+        {
+            return true;
+        }
+        else return false;
+    }
+
 
     internal static string HelpPlayer()
     {
@@ -76,28 +89,25 @@ public static class Program
     {
         //setup
         var home = new Room("homeSpawn", "home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.",
-            " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.", 1);
+            " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.");
         var 
             basement = new Room("homeBasement", "basement", "You are now in the basement.", " You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench," +
-            " hinting at various hobbies and pastimes."+" The air carries a faint scent of old books and wood. There is a key in the corner of the room.", 2); 
+            " hinting at various hobbies and pastimes."+" The air carries a faint scent of old books and wood. There is a key in the corner of the room."); 
         
         var garden = new Room("garden", "garden", "You are now in your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery." +
             " The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
-            "There is a big rusty gate that is covered in vines and greenery."
-            , 3);
+            "There is a big rusty gate that is covered in vines and greenery.");
 
         home.Exits.Add("basement", basement);
         home.Exits.Add("go down", basement);
         home.Exits.Add("go out", garden);
         basement.Exits.Add("go back", home);
         basement.Exits.Add("back", home);
-        basement.Exits.Add("go up", home); basement.Exits.Add("go back", home);
+        basement.Exits.Add("go up", home); 
         garden.Exits.Add("go inside", home);
-
 
         // begin gameplay
         GameState.GameRunning = true;
-
         MainScreen();
 
         GameState.CurrentRoom = home;
