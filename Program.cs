@@ -24,7 +24,6 @@ public class Room
     internal string HandleInput(string input)
     {
         //command handler for specific room
-
         if (GameState.DetailedDescription(input))
         {
             return GameState.CurrentRoom.Description + GameState.CurrentRoom.DetailedDescription;
@@ -36,7 +35,11 @@ public class Room
                 GameState.VisitedRoom(room);
                 return room.Name;
             }
-            else return room.Description;
+            else
+            {
+                GameState.CurrentRoom = room;
+                return room.Description;
+            }
         }
         else return null;
     }
@@ -53,7 +56,6 @@ public static class GameState
 
     public static void VisitedRoom(Room room)
     {
-        GameState.CurrentRoom = room;
         VisitedRooms.Add(room.Slug);
     }
 
