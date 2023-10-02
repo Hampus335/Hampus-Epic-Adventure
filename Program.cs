@@ -23,18 +23,32 @@ public class Room
 
     internal string HandleInput(string input)
     {
+        Room futureRoom = null;
         //command handler for specific room
         if (GameState.DetailedDescription(input))
-        {
+        {   
             return GameState.CurrentRoom.Description + GameState.CurrentRoom.DetailedDescription;
         }
         else if (Exits.TryGetValue(input, out var room))
         {
-            if (GameState.CheckVisitedRoom(room.Slug))
+            if (GameState.CurrentRoom.Exits.ContainsKey(input))
             {
-                GameState.VisitedRoom(room);
-                return room.Name;
+                //check if player has visited futureRoom
+                GameState.CurrentRoom.Exits[input] = futureRoom;
+                if (GameState.CheckVisitedRoom(futureRoom.Slug))
+                {
+                    GameState.CurrentRoom = futureRoom;
+                    GameState.RegisterRoom(GameState.CurrentRoom);
+                    return GameState.CurrentRoom.Name;
+                }
+                else
+                {
+                    GameState.CurrentRoom = futureRoom;
+                    GameState.RegisterRoom(GameState.CurrentRoom);
+                    return GameState.CurrentRoom.Description;
+                }
             }
+
             else
             {
                 GameState.CurrentRoom = room;
@@ -54,7 +68,7 @@ public static class GameState
 
     static HashSet<string> VisitedRooms = new HashSet<string>();
 
-    public static void VisitedRoom(Room room)
+    public static void RegisterRoom(Room room)
     {
         VisitedRooms.Add(room.Slug);
     }
