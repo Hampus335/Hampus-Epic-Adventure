@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
+using Hampus_Epic_Adventure;
+
 public class Player
 {
     public static int Health = 100;
@@ -13,7 +15,7 @@ public class Room
     public string Slug { get; set; }
     public string Name { get; set; }
     public string DetailedDescription { get; set; }
-    public Item Item { get; set; }
+    public Item? Item { get; set; }
     public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
     {   
         Slug = slug;
@@ -23,42 +25,39 @@ public class Room
         Item = item;
     }
 
-    internal string HandleInput(string input)
+    internal CommandResult HandleInput(string input)
     {
-        Room futureRoom = null;
         //command handler for specific room
         if (GameState.DetailedDescription(input))
-        {   
-            return GameState.CurrentRoom.Description + " " + GameState.CurrentRoom.DetailedDescription;
+        {
+            return new CommandResult(GameState.CurrentRoom.Description + " " + GameState.CurrentRoom.DetailedDescription, ClearScreen: false);
         }
-          if (GameState.CurrentRoom.Exits.ContainsKey(input))
-          {    
-            //check if player has visited futureRoom          
-            futureRoom = GameState.CurrentRoom.Exits[input];
-            
-            if (GameState.CheckVisitedRoom(futureRoom.Slug))
+
+        //checks if player has visited room       
+        if (GameState.CurrentRoom.Exits.TryGetValue(input, out Room room))
+          {                
+            if (GameState.CheckVisitedRoom(room.Slug))
             {
-                GameState.CurrentRoom = futureRoom;
+                GameState.CurrentRoom = room;
                 GameState.RegisterRoom(GameState.CurrentRoom);
-                return GameState.CurrentRoom.Name; 
+                return new CommandResult(GameState.CurrentRoom.Name, ClearScreen: false); 
             }
             
             else
             {
-                GameState.CurrentRoom = futureRoom;
+                GameState.CurrentRoom = room;
                 GameState.RegisterRoom(GameState.CurrentRoom);
-                return GameState.CurrentRoom.Description;
-            }
-        
-          }
-        if ("take " + GameState.CurrentRoom.Item.Name == input.ToLower())
+                return new CommandResult(GameState.CurrentRoom.Description, ClearScreen: false);
+            }       
+          } 
+
+        if ("take " + GameState.CurrentRoom.Item?.Name == input.ToLower())
         {
-            Console.WriteLine(GameState.CurrentRoom.Item.ToString() + " Has been taken.");
             GameState.Player.Inventory.Add(GameState.CurrentRoom.Item);
             GameState.CurrentRoom.Item = null;
-            return GameState.Player.Inventory.Last().Name.ToString();
+            return new CommandResult("You picked up a " + GameState.Player.Inventory.Last().Name.ToString(), ClearScreen: false);
         }
-        else return null;
+        else return new CommandResult("unknown", ClearScreen: true);
     }
 }
 
@@ -87,9 +86,10 @@ public static class GameState
     }
 
 
-    internal static string HelpPlayer()
+    internal static CommandResult HelpPlayer()
     {
-        return($"To get away from this place, you have {String.Join(", and ", CurrentRoom.Exits.Keys)} as an option.");
+        //return new CommandResult($"To get away from this place, you have {Utils.JoinAnd(", ", "and", CurrentRoom.Exits.Keys)} as an option.", ClearScreen: false);
+        return new CommandResult($"To get away from this place, you have {String.Join(", ", "and", CurrentRoom.Exits.Keys)} as an option.", ClearScreen: false);
     }
 
     internal static bool DetailedDescription(string input)
@@ -99,6 +99,14 @@ public static class GameState
             return true;
         }
         else return false;
+    }
+}
+
+internal class Utils
+{
+    internal static object JoinAnd(string v1, string v2, Dictionary<string, Room>.KeyCollection keys)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -139,17 +147,21 @@ public static class Program
         while (GameState.GameRunning)
         {
             string input = Console.ReadLine()!;
-            string response = HandleInput(input);
-            if (response == null)
-            {   
+            //string response = HandleInput(input);
+            CommandResult response = HandleInput(input);
+            if (response.Text == "unknown")
+            {
                 Console.WriteLine("Unrecognized command.");
+            }
+            else if (response.ClearScreen)
+            {
+                Console.Clear();
             }
             else
             {
-                Console.Clear();
-                Console.WriteLine(response);
+                Console.WriteLine(response.Text);
             }
-        }
+        }   
 
         static void MainScreen()
         {
@@ -163,7 +175,7 @@ public static class Program
             Console.ReadKey();
             Console.Clear();
         }
-        string HandleInput(string input)
+        CommandResult HandleInput(string input)
         {
             // try handle global command
 
@@ -176,12 +188,14 @@ public static class Program
             {
                 return GameState.HelpPlayer();
             }
-                if (input.ToLower() == "show inventory" || input.ToLower() == "inventory")
+             
+            if (input.ToLower() == "show inventory" || input.ToLower() == "inventory")
             {
-                foreach (var item in GameState.Player.Inventory)
+                foreach (var item in GameState.Player.Inventory)           
                 {
-                    Console.WriteLine($"{item}");
+                    Console.WriteLine($" -  {item.Name}");         
                 }
+                return new CommandResult(Text: null, ClearScreen: false);
             }
             return GameState.CurrentRoom.HandleInput(input);
         }
