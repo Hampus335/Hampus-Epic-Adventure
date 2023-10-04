@@ -89,7 +89,13 @@ public static class GameState
     internal static CommandResult HelpPlayer()
     {
         //return new CommandResult($"To get away from this place, you have {Utils.JoinAnd(", ", "and", CurrentRoom.Exits.Keys)} as an option.", ClearScreen: false);
-        return new CommandResult($"To get away from this place, you have {String.Join(", ", "and", CurrentRoom.Exits.Keys)} as an option.", ClearScreen: false);
+        var distinctExits = CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key);
+        string result = null;
+        foreach (var v in distinctExits)
+        {
+            result += ", "+v;
+        }
+        return new CommandResult(result.ToString() + " will get you out of this place.", ClearScreen: false);
     }
 
     internal static bool DetailedDescription(string input)
