@@ -24,6 +24,12 @@ public class Room
         DetailedDescription = detailedDescription;
         Item = item;
     }
+    private List<InteractiveItem> interactableItems = new List<InteractiveItem>();
+
+    public void AddInteractiveItem(InteractiveItem interactiveItem)
+    {
+        interactableItems.Add(interactiveItem);
+    }
 
     internal CommandResult HandleInput(string input)
     {
@@ -88,14 +94,7 @@ public static class GameState
 
     internal static CommandResult HelpPlayer()
     {
-        //return new CommandResult($"To get away from this place, you have {Utils.JoinAnd(", ", "and", CurrentRoom.Exits.Keys)} as an option.", ClearScreen: false);
-        var distinctExits = CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key);
-        string result = null;
-        foreach (var v in distinctExits)
-        {
-            result += ", "+v;
-        }
-        return new CommandResult(result.ToString() + " will get you out of this place.", ClearScreen: false);
+        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key)), ClearScreen: false);
     }
 
     internal static bool DetailedDescription(string input)
@@ -138,6 +137,9 @@ public static class Program
         basement.Exits.Add("back", home);
         basement.Exits.Add("go up", home); 
         garden.Exits.Add("go inside", home);
+        Door g = new Door();
+        garden.AddInteractiveItem(g);
+        
         basement.Item = new Item();
         basement.Item.Name = "key";
 
