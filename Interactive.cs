@@ -8,8 +8,6 @@ namespace Hampus_Epic_Adventure;
 
 public abstract class InteractiveItem
 {
-    public string Name { get; set; }
-
     public abstract CommandResult HandleInput(string input);
 }
 
@@ -19,43 +17,44 @@ public class Door : InteractiveItem
     public Key Key { get; set; }
     public bool DoorOpen { get; set; }
     public Room DoorLeadsTo { get; set; }
-
-    public Door(int doorID, Room doorLeadsTo, Key key)
+    public string DoorName { get; set; }
+    public Door(int doorID, Room doorLeadsTo, Key key, string doorName)
     {
         DoorID = doorID;
         DoorLeadsTo = doorLeadsTo;
         Key = key;
+        DoorName = doorName;
     }
 
     public override CommandResult HandleInput(string input)
     {
-        if (input.ToLower() == "go through door")
+        if (input.ToLower() == $"go through {DoorName.ToLower()}" || input.ToLower() == $"use {DoorName.ToLower()}")
         {
             if (DoorOpen)
             {
-                Console.WriteLine("Going through door.");
+                GameState.MoveToRoom(DoorLeadsTo);
+                return new CommandResult(Text: $"Going through {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
         }
 
-        if (input.ToLower() == "use key")
+        if (input.ToLower() == "use key" || input.ToLower() == $"unlock {DoorName.ToLower()}")
         {
             if (GameState.Player.Inventory.Contains(Key) && Key.ID == DoorID)
             {
                 DoorOpen = true;
-                Console.WriteLine("Door is now open.");
+                GameState.Player.Inventory.Remove(Key);
+                return new CommandResult(Text: $"The {DoorName} is now open.", ClearScreen: false, RecognizedCommand: true);
             }
             else if (GameState.Player.Inventory.Contains(Key))
             {
-                Console.WriteLine("This is not the right key for this door.");
+                return new CommandResult(Text: $"This is not the right key for this {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
-            else if (!GameState.Player.Inventory.Contains(Key))
+            else
             {
-                Console.WriteLine("You need a key here.");
+                return new CommandResult(Text: "You need a key here.", ClearScreen: false, RecognizedCommand: true);
             }
-
-            return new CommandResult(Text: null, ClearScreen: false);
         }
-        else return new CommandResult("unknown", ClearScreen: false);
+        else return new CommandResult(null, ClearScreen: false, RecognizedCommand: false);
     }
 }
 

@@ -1,6 +1,10 @@
-﻿public class Item
+﻿using System.Text.Json.Serialization;
+
+
+[JsonDerivedType(typeof(Key), typeDiscriminator: "Key")]
+public class Item
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 public class Key : Item

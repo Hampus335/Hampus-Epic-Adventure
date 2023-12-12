@@ -1,12 +1,13 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 
 using Hampus_Epic_Adventure;
 
 public class Player
 {
-    public static int Health = 100;
-    public List<Item> Inventory = new List<Item>();
-}
+    public int Health { get; set; } = 100;
+    public List<Item> Inventory { get; set; } = new List<Item>();
+}   
 
 public class Room
 {
@@ -32,29 +33,17 @@ public class Room
         {
             return new CommandResult(GameState.CurrentRoom.Description + " " + GameState.CurrentRoom.DetailedDescription, ClearScreen: false);
         }
-
-        //checks if player has visited room
         if (GameState.CurrentRoom.Exits.TryGetValue(input, out Room room))
-          {                
-            if (GameState.CheckVisitedRoom(room.Slug))
-            {
-                GameState.CurrentRoom = room;
-                GameState.RegisterRoom(GameState.CurrentRoom);
-                return new CommandResult(GameState.CurrentRoom.Name, ClearScreen: false); 
-            }
-            
-            else
-            {
-                GameState.CurrentRoom = room;
-                GameState.RegisterRoom(GameState.CurrentRoom);
-                return new CommandResult(GameState.CurrentRoom.Description, ClearScreen: false);
-            }       
-          }
+        {
+            CommandResult result = GameState.MoveToRoom(room);
+            return result;
+        }
 
         //check if player is trying to use interactive in the specific room
         foreach (InteractiveItem item in Interactives)
         {
-            item.HandleInput(input);
+            var result = item.HandleInput(input);
+            return result;
         }
 
         if ("take " + GameState.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
@@ -76,7 +65,7 @@ public static class GameState
 
     static HashSet<string> VisitedRooms = new HashSet<string>();
 
-    public static void RegisterRoom(Room room)
+    public static void VisitRoom(Room room)
     {
         VisitedRooms.Add(room.Slug);
     }
@@ -105,6 +94,31 @@ public static class GameState
         }
         else return false;
     }
+
+    internal static CommandResult MoveToRoom(Room room)
+    {
+        //return appropriate information if the player has visited the room. Returns a different text if the player hasn't visited the room previously.
+        if (GameState.CheckVisitedRoom(room.Slug))
+        {
+            GameState.CurrentRoom = room;
+            GameState.VisitRoom(GameState.CurrentRoom);
+            return new CommandResult(GameState.CurrentRoom.Name, ClearScreen: false);
+        }
+
+        else
+        {
+            GameState.CurrentRoom = room;
+            GameState.VisitRoom(GameState.CurrentRoom);
+            return new CommandResult(GameState.CurrentRoom.Description, ClearScreen: false);
+        }
+    }
+
+    internal static void SaveGame(Player player)
+    {
+        string jsonString = JsonSerializer.Serialize(player);
+        string fileName = "PlayerData.json";
+        File.WriteAllText(fileName, jsonString);
+    }
 }
 
 public static class Program
@@ -112,12 +126,12 @@ public static class Program
     public static void Main()
     {
         //setup
-        var home = new Room("homeSpawn", "Home", "You just woke up from bed. You can choose to stay and make coffee, go down the hatch to the basement, or take the door and go out.",
+        var home = new Room("homeSpawn", "Bedroom", "You are now in your bedroom. You can either go down the hatch to the basement, or take the door and go out.",
             " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.");
         var basement = new Room("homeBasement", "Basement", "You are now in the basement.", " You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench," +
             " hinting at various hobbies and pastimes." + " The air carries a faint scent of old books and wood. There is a key in the corner of the room."); 
         
-        var garden = new Room("garden", "Garden", "You are now in your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery." +
+        var garden = new Room("garden", "Garden", "You are now in your garden. There is a gate at the end of your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery." +
             " The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
             " There is a big rusty gate that is covered in vines and greenery.");
 
@@ -132,29 +146,30 @@ public static class Program
         basement.Exits.Add("back", home);
         basement.Exits.Add("go up", home); 
         garden.Exits.Add("go inside", home);
+        forest.Exits.Add("go to garden", garden);
 
-
-        Key key = new Key(2, "Key");
-        Door gate = new Door(1, forest, key);
+        Key key = new Key(1, "Key");
+        Door gate = new Door(1, forest, key, "gate");
         gate.DoorLeadsTo = forest;
         garden.Interactives.Add(gate);
 
         basement.Item = key;
 
         GameState.CurrentRoom = home;
-        GameState.RegisterRoom(home);
+        GameState.VisitRoom(home);
 
         // begin gameplay
         GameState.GameRunning = true;
         MainScreen();
-
         Console.WriteLine(GameState.CurrentRoom.Description);
+        Console.Write(" > ");
 
         while (GameState.GameRunning)
         {
             string input = Console.ReadLine()!;
+            Console.WriteLine();
             CommandResult response = HandleInput(input);
-            if (response.Text.ToLower() == "unknown")
+            if (response.Text == "unknown")
             {
                 Console.WriteLine("Unrecognized command.");
             }
@@ -166,6 +181,7 @@ public static class Program
             {
                 Console.WriteLine(response.Text);
             }
+            Console.Write(" > ");
         }   
 
         static void MainScreen()
@@ -187,6 +203,7 @@ public static class Program
             // if we can't, pass it to the room
             if (input.ToLower() == "quit" || input.ToLower() == "exit")
             {
+                GameState.SaveGame(GameState.Player, GameState.);
                 Environment.Exit(0);
             }
             if (input.ToLower() == "help")

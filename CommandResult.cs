@@ -6,4 +6,4 @@ using System.Threading.Tasks;
 
 namespace Hampus_Epic_Adventure;
 
-public record CommandResult(string? Text = null, bool ClearScreen = true);
+public record CommandResult(string? Text = null, bool ClearScreen = true, bool RecognizedCommand = false);
