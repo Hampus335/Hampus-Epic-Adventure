@@ -18,12 +18,14 @@ public class Door : InteractiveItem
     public bool DoorOpen { get; set; }
     public Room DoorLeadsTo { get; set; }
     public string DoorName { get; set; }
-    public Door(int doorID, Room doorLeadsTo, Key key, string doorName)
+    public string KeyName { get; set; }
+    public Door(int doorID, Room doorLeadsTo, Key key, string doorName, string keyName)
     {
         DoorID = doorID;
         DoorLeadsTo = doorLeadsTo;
         Key = key;
         DoorName = doorName;
+        KeyName = keyName;
     }
 
     public override CommandResult HandleInput(string input)

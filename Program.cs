@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 using Hampus_Epic_Adventure;
@@ -56,21 +57,21 @@ public class Room
     }
 }
 
-public static class GameState
+public class GameState
 {
-    public static Player Player { get; } = new Player();
+    public Player Player { get; } = new Player();
 
-    public static bool GameRunning;
-    public static Room CurrentRoom { get; internal set; }
+    public bool GameRunning;
+    public Room CurrentRoom { get; internal set; }
 
     static HashSet<string> VisitedRooms = new HashSet<string>();
 
-    public static void VisitRoom(Room room)
+    public void VisitRoom(Room room)
     {
         VisitedRooms.Add(room.Slug);
     }
 
-    public static bool CheckVisitedRoom(string room)
+    public bool CheckVisitedRoom(string room)
     {
         //check if room has been visited
         if (VisitedRooms.Contains(room))
@@ -81,12 +82,12 @@ public static class GameState
     }
 
 
-    internal static CommandResult HelpPlayer()
+    internal CommandResult HelpPlayer()
     {
         return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key)), ClearScreen: false);
     }
 
-    internal static bool DetailedDescription(string input)
+    internal bool DetailedDescription(string input)
     {
         if (input.ToLower() == "look")
         {
@@ -95,7 +96,7 @@ public static class GameState
         else return false;
     }
 
-    internal static CommandResult MoveToRoom(Room room)
+    internal CommandResult MoveToRoom(Room room)
     {
         //return appropriate information if the player has visited the room. Returns a different text if the player hasn't visited the room previously.
         if (GameState.CheckVisitedRoom(room.Slug))
@@ -113,13 +114,14 @@ public static class GameState
         }
     }
 
-    internal static void SaveGame(Player player)
+    internal void SaveGame(Player player)
     {
         string jsonString = JsonSerializer.Serialize(player);
         string fileName = "PlayerData.json";
         File.WriteAllText(fileName, jsonString);
     }
 }
+
 
 public static class Program
 {
@@ -203,7 +205,7 @@ public static class Program
             // if we can't, pass it to the room
             if (input.ToLower() == "quit" || input.ToLower() == "exit")
             {
-                GameState.SaveGame(GameState.Player, GameState.);
+                GameState.SaveGame(GameState.Player);
                 Environment.Exit(0);
             }
             if (input.ToLower() == "help")
