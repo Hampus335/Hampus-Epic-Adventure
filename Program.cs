@@ -30,13 +30,13 @@ public class Room
     internal CommandResult HandleInput(string input)
     {
         //command handler for specific room
-        if (GameState.DetailedDescription(input))
+        if (Game.State.DetailedDescription(input))
         {
-            return new CommandResult(GameState.CurrentRoom.Description + " " + GameState.CurrentRoom.DetailedDescription, ClearScreen: false);
+            return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false);
         }
-        if (GameState.CurrentRoom.Exits.TryGetValue(input, out Room room))
+        if (Game.State.CurrentRoom.Exits.TryGetValue(input, out Room room))
         {
-            CommandResult result = GameState.MoveToRoom(room);
+            CommandResult result = Game.State.MoveToRoom(room);
             return result;
         }
 
@@ -47,11 +47,11 @@ public class Room
             return result;
         }
 
-        if ("take " + GameState.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
+        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
         {
-            GameState.Player.Inventory.Add(GameState.CurrentRoom.Item);
-            GameState.CurrentRoom.Item = null;
-            return new CommandResult("You picked up a " + GameState.Player.Inventory.Last().Name.ToString(), ClearScreen: false);
+            Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
+            Game.State.CurrentRoom.Item = null;
+            return new CommandResult("You picked up a " + Game.State.Player.Inventory.Last().Name.ToString(), ClearScreen: false);
         }
         else return new CommandResult("unknown", ClearScreen: true);
     }
@@ -99,29 +99,28 @@ public class GameState
     internal CommandResult MoveToRoom(Room room)
     {
         //return appropriate information if the player has visited the room. Returns a different text if the player hasn't visited the room previously.
-        if (GameState.CheckVisitedRoom(room.Slug))
+        if (CheckVisitedRoom(room.Slug))
         {
-            GameState.CurrentRoom = room;
-            GameState.VisitRoom(GameState.CurrentRoom);
-            return new CommandResult(GameState.CurrentRoom.Name, ClearScreen: false);
+            CurrentRoom = room;
+            VisitRoom(CurrentRoom);
+            return new CommandResult(CurrentRoom.Name, ClearScreen: false);
         }
 
         else
         {
-            GameState.CurrentRoom = room;
-            GameState.VisitRoom(GameState.CurrentRoom);
-            return new CommandResult(GameState.CurrentRoom.Description, ClearScreen: false);
-        }
+            CurrentRoom = room;
+            VisitRoom(CurrentRoom);
+            return new CommandResult(CurrentRoom.Description, ClearScreen: false);
+        }       
     }
 
-    internal void SaveGame(Player player)
+    internal void SaveGame()
     {
-        string jsonString = JsonSerializer.Serialize(player);
+        string jsonString = JsonSerializer.Serialize(Game.State);
         string fileName = "PlayerData.json";
         File.WriteAllText(fileName, jsonString);
     }
 }
-
 
 public static class Program
 {
@@ -151,22 +150,22 @@ public static class Program
         forest.Exits.Add("go to garden", garden);
 
         Key key = new Key(1, "Key");
-        Door gate = new Door(1, forest, key, "gate");
+        Door gate = new Door(1, forest, key, "gate", "key");
         gate.DoorLeadsTo = forest;
         garden.Interactives.Add(gate);
 
         basement.Item = key;
 
-        GameState.CurrentRoom = home;
-        GameState.VisitRoom(home);
+        Game.State.CurrentRoom = home;
+        Game.State.VisitRoom(home);
 
         // begin gameplay
-        GameState.GameRunning = true;
+        Game.State.GameRunning = true;
         MainScreen();
-        Console.WriteLine(GameState.CurrentRoom.Description);
+        Console.WriteLine(Game.State.CurrentRoom.Description);
         Console.Write(" > ");
 
-        while (GameState.GameRunning)
+        while (Game.State.GameRunning)
         {
             string input = Console.ReadLine()!;
             Console.WriteLine();
@@ -205,23 +204,27 @@ public static class Program
             // if we can't, pass it to the room
             if (input.ToLower() == "quit" || input.ToLower() == "exit")
             {
-                GameState.SaveGame(GameState.Player);
+                Game.State.SaveGame();
                 Environment.Exit(0);
             }
             if (input.ToLower() == "help")
             {
-                return GameState.HelpPlayer();
+                return Game.State.HelpPlayer();
             }
              
             if (input.ToLower() == "show inventory" || input.ToLower() == "inventory")
             {
-                foreach (var item in GameState.Player.Inventory)           
+                foreach (var item in Game.State.Player.Inventory)           
                 {
                     Console.WriteLine($" -  {item.Name}");         
                 }
+                if (Game.State.Player.Inventory.Count < 1)
+                {
+                    Console.WriteLine($" -  Your inventory is empty.");
+                }
                 return new CommandResult(Text: null, ClearScreen: false);
             }
-            return GameState.CurrentRoom.HandleInput(input);
+            return Game.State.CurrentRoom.HandleInput(input);
         }
     }
 }

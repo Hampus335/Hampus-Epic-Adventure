@@ -34,20 +34,20 @@ public class Door : InteractiveItem
         {
             if (DoorOpen)
             {
-                GameState.MoveToRoom(DoorLeadsTo);
+                Game.State.MoveToRoom(DoorLeadsTo);
                 return new CommandResult(Text: $"Going through {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
         }
 
         if (input.ToLower() == "use key" || input.ToLower() == $"unlock {DoorName.ToLower()}")
         {
-            if (GameState.Player.Inventory.Contains(Key) && Key.ID == DoorID)
+            if (Game.State.Player.Inventory.Contains(Key) && Key.ID == DoorID)
             {
                 DoorOpen = true;
-                GameState.Player.Inventory.Remove(Key);
+                Game.State.Player.Inventory.Remove(Key);
                 return new CommandResult(Text: $"The {DoorName} is now open.", ClearScreen: false, RecognizedCommand: true);
             }
-            else if (GameState.Player.Inventory.Contains(Key))
+            else if (Game.State.Player.Inventory.Contains(Key))
             {
                 return new CommandResult(Text: $"This is not the right key for this {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
