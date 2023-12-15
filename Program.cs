@@ -34,7 +34,7 @@ public class Room
         {
             return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false);
         }
-        if (Game.State.CurrentRoom.Exits.TryGetValue(input, out Room room))
+        if (Game.State.CurrentRoom.Exits.TryGetValue(input.ToLower(), out Room room))
         {
             CommandResult result = Game.State.MoveToRoom(room);
             return result;
