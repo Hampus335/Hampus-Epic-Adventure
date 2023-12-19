@@ -116,9 +116,8 @@ public class GameState
 
     internal void SaveGame()
     {
-        string jsonCurrentRoom = JsonSerializer.Serialize(Game.State.CurrentRoom.Slug);
-        string jsonPlayer = JsonSerializer.Serialize(Game.State.Player);
-        var jsonData = jsonCurrentRoom + jsonPlayer;
+        JsonData gameData = new JsonData(Player, CurrentRoom.Slug);
+        string jsonData = JsonSerializer.Serialize(gameData);
         string fileName = "PlayerData.json";
         File.WriteAllText(fileName, jsonData);
     }
