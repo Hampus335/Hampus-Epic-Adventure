@@ -47,13 +47,13 @@ public class Room
             return result;
         }
 
-        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
+        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
         {
             Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
             Game.State.CurrentRoom.Item = null;
             return new CommandResult("You picked up a " + Game.State.Player.Inventory.Last().Name.ToString(), ClearScreen: false);
         }
-        else return new CommandResult("unknown", ClearScreen: true);
+        else return new CommandResult("unknown", ClearScreen: false);
     }
 }
 
@@ -98,19 +98,19 @@ public class GameState
 
     internal CommandResult MoveToRoom(Room room)
     {
-        //return appropriate information if the player has visited the room. Returns a different text if the player hasn't visited the room previously.
+        //return appropriate information if the player has visited tqrhe room. Returns a different text if the player hasn't visited the room previously.
         if (CheckVisitedRoom(room.Slug))
         {
             CurrentRoom = room;
             VisitRoom(CurrentRoom);
-            return new CommandResult(CurrentRoom.Name, ClearScreen: false);
+            return new CommandResult(CurrentRoom.Name, ClearScreen: true);
         }
 
         else
         {
             CurrentRoom = room;
             VisitRoom(CurrentRoom);
-            return new CommandResult(CurrentRoom.Description, ClearScreen: false);
+            return new CommandResult(CurrentRoom.Description, ClearScreen: true);
         }       
     }
 
@@ -120,6 +120,11 @@ public class GameState
         string jsonData = JsonSerializer.Serialize(gameData);
         string fileName = "PlayerData.json";
         File.WriteAllText(fileName, jsonData);
+    }
+
+    internal void LoadGame()
+    {
+
     }
 }
 
@@ -141,14 +146,22 @@ public static class Program
                  " The towering trees create a natural canopy, casting dappled sunlight on the forest floor. A soft carpet of fallen leaves crunches beneath your feet as you explore." +
                  " The air is filled with the soothing sounds of rustling leaves, distant bird calls, and the occasional scampering of unseen creatures. A narrow trail leads deeper into the heart of the woods.");
 
-        home.Exits.Add("basement", basement);
         home.Exits.Add("go down", basement);
+        home.Exits.Add("go down the basement", basement);
+        home.Exits.Add("go down to the basement", basement);
+        home.Exits.Add("basement", basement);
+        home.Exits.Add("enter the basement", basement);
         home.Exits.Add("go out", garden);
+        home.Exits.Add("go out to garden", garden);
+        home.Exits.Add("go to garden", garden);
         basement.Exits.Add("go back", home);
         basement.Exits.Add("back", home);
         basement.Exits.Add("go up", home); 
         garden.Exits.Add("go inside", home);
+        garden.Exits.Add("go back inside", home);
         forest.Exits.Add("go to garden", garden);
+        forest.Exits.Add("go back to garden", garden);
+        forest.Exits.Add("back to garden", garden);
 
         Key key = new Key(1, "Key");
         Door gate = new Door(1, forest, key, "gate", "key");
@@ -171,15 +184,16 @@ public static class Program
             string input = Console.ReadLine()!;
             Console.WriteLine();
             CommandResult response = HandleInput(input);
-            if (response.Text == "unknown")
-            {
-                Console.WriteLine("Unrecognized command.");
-            }
-            else if (response.ClearScreen)
+             
+            if (response.ClearScreen)
             {
                 Console.Clear();
             }
-            else
+            else if (response.Text == "unknown")
+            {
+                Console.WriteLine("Unrecognized command.");
+            }
+            if (response.Text != null)
             {
                 Console.WriteLine(response.Text);
             }

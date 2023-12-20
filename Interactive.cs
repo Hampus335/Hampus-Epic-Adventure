@@ -30,7 +30,7 @@ public class Door : InteractiveItem
 
     public override CommandResult HandleInput(string input)
     {
-        if (input.ToLower() == $"go through {DoorName.ToLower()}" || input.ToLower() == $"use {DoorName.ToLower()}")
+        if (input.ToLower() == $"go through the {DoorName.ToLower()}" || input.ToLower() == $"go through {DoorName.ToLower()}" || input.ToLower() == $"use {DoorName.ToLower()}" || input.ToLower() == $"enter {DoorName.ToLower()}" || input.ToLower() == $"enter the {DoorName.ToLower()}")
         {
             if (DoorOpen)
             {
@@ -39,7 +39,7 @@ public class Door : InteractiveItem
             }
         }
 
-        if (input.ToLower() == "use key" || input.ToLower() == $"unlock {DoorName.ToLower()}")
+        if (input.ToLower() == $"use {KeyName.ToLower()}" || input.ToLower() == $"unlock {DoorName.ToLower()}" || input.ToLower() == $"open {DoorName.ToLower()}" || input.ToLower() == $"open the {DoorName.ToLower()}" || input.ToLower() == $"unlock the {DoorName.ToLower()}" || input.ToLower() == $"use the {KeyName.ToLower()}")
         {
             if (Game.State.Player.Inventory.Contains(Key) && Key.ID == DoorID)
             {
@@ -49,11 +49,11 @@ public class Door : InteractiveItem
             }
             else if (Game.State.Player.Inventory.Contains(Key))
             {
-                return new CommandResult(Text: $"This is not the right key for this {DoorName}.", ClearScreen: false, RecognizedCommand: true);
+                return new CommandResult(Text: $"This is not the right {KeyName.ToLower()} for this {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
             else
             {
-                return new CommandResult(Text: "You need a key here.", ClearScreen: false, RecognizedCommand: true);
+                return new CommandResult(Text: "You need a {KeyName.ToLower()} here.", ClearScreen: false, RecognizedCommand: true);
             }
         }
         else return new CommandResult(null, ClearScreen: false, RecognizedCommand: false);
