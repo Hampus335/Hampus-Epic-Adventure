@@ -9,12 +9,12 @@ namespace Hampus_Epic_Adventure;
 internal class JsonData
 {
     public Player Player { get; set; }
-    public string currentRoomSlug { get; set; }
+    public string Slug { get; set; }
 
     public JsonData(Player player, string roomSlug)
     {
         Player = player;
-        currentRoomSlug = roomSlug;
+        Slug = roomSlug;
     }
 }
 

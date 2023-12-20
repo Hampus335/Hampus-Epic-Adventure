@@ -122,9 +122,12 @@ public class GameState
         File.WriteAllText(fileName, jsonData);
     }
 
-    internal void LoadGame()
+    public void LoadGame()
     {
+        var savedData = File.ReadAllText(@"PlayerData.json");
+        var jsonOutput = JsonSerializer.Deserialize<JsonData>(savedData);
 
+        Console.WriteLine(jsonOutput.Player.Inventory[0].Name);
     }
 }
 
@@ -169,6 +172,8 @@ public static class Program
         garden.Interactives.Add(gate);
 
         basement.Item = key;
+
+        Game.State.LoadGame();
 
         Game.State.CurrentRoom = home;
         Game.State.VisitRoom(home);

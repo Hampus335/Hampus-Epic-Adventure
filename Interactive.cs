@@ -53,7 +53,7 @@ public class Door : InteractiveItem
             }
             else
             {
-                return new CommandResult(Text: "You need a {KeyName.ToLower()} here.", ClearScreen: false, RecognizedCommand: true);
+                return new CommandResult(Text: $"You need a {KeyName.ToLower()} here.", ClearScreen: false, RecognizedCommand: true);
             }
         }
         else return new CommandResult(null, ClearScreen: false, RecognizedCommand: false);
