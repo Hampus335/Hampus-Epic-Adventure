@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 
 namespace Hampus_Epic_Adventure;
 
-internal class JsonData
+public class JsonData
 {
     public Player Player { get; set; }
     public string Slug { get; set; }
-
-    public JsonData(Player player, string roomSlug)
-    {
-        Player = player;
-        Slug = roomSlug;
-    }
 }
 

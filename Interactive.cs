@@ -41,7 +41,7 @@ public class Door : InteractiveItem
 
         if (input.ToLower() == $"use {KeyName.ToLower()}" || input.ToLower() == $"unlock {DoorName.ToLower()}" || input.ToLower() == $"open {DoorName.ToLower()}" || input.ToLower() == $"open the {DoorName.ToLower()}" || input.ToLower() == $"unlock the {DoorName.ToLower()}" || input.ToLower() == $"use the {KeyName.ToLower()}")
         {
-            if (Game.State.Player.Inventory.Contains(Key) && Key.ID == DoorID)
+            if (Game.State.Player.Inventory.Any(item => item is Key key) && Key.ID == DoorID)
             {
                 DoorOpen = true;
                 Game.State.Player.Inventory.Remove(Key);
@@ -56,7 +56,7 @@ public class Door : InteractiveItem
                 return new CommandResult(Text: $"You need a {KeyName.ToLower()} here.", ClearScreen: false, RecognizedCommand: true);
             }
         }
-        else return new CommandResult(null, ClearScreen: false, RecognizedCommand: false);
+        else return new CommandResult(ClearScreen: false, RecognizedCommand: false  );
     }
 }
 

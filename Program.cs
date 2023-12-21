@@ -32,7 +32,7 @@ public class Room
         //command handler for specific room
         if (Game.State.DetailedDescription(input))
         {
-            return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false);
+            return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false, RecognizedCommand: true);
         }
         if (Game.State.CurrentRoom.Exits.TryGetValue(input.ToLower(), out Room room))
         {
@@ -51,14 +51,15 @@ public class Room
         {
             Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
             Game.State.CurrentRoom.Item = null;
-            return new CommandResult("You picked up a " + Game.State.Player.Inventory.Last().Name.ToString(), ClearScreen: false);
+            return new CommandResult(Text: "You picked up a " + Game.State.Player.Inventory.Last().Name.ToString(), ClearScreen: false, RecognizedCommand: true);
         }
-        else return new CommandResult("unknown", ClearScreen: false);
+        else return new CommandResult(ClearScreen: false, RecognizedCommand: false);
     }
 }
 
 public class GameState
 {
+    public List<Room> Rooms { get; set; } = new List<Room> ();
     public Player Player { get; } = new Player();
 
     public bool GameRunning;
@@ -84,7 +85,7 @@ public class GameState
 
     internal CommandResult HelpPlayer()
     {
-        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key)), ClearScreen: false);
+        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key)), ClearScreen: false, RecognizedCommand: true);
     }
 
     internal bool DetailedDescription(string input)
@@ -116,18 +117,22 @@ public class GameState
 
     internal void SaveGame()
     {
-        JsonData gameData = new JsonData(Player, CurrentRoom.Slug);
+        JsonData gameData = new JsonData
+        {
+            Slug = CurrentRoom.Slug,
+            Player = Game.State.Player
+        };
+
         string jsonData = JsonSerializer.Serialize(gameData);
         string fileName = "PlayerData.json";
         File.WriteAllText(fileName, jsonData);
     }
 
-    public void LoadGame()
+    public JsonData LoadGame()
     {
         var savedData = File.ReadAllText(@"PlayerData.json");
         var jsonOutput = JsonSerializer.Deserialize<JsonData>(savedData);
-
-        Console.WriteLine(jsonOutput.Player.Inventory[0].Name);
+        return jsonOutput;
     }
 }
 
@@ -136,11 +141,13 @@ public static class Program
     public static void Main()
     {
         //setup
+
         var home = new Room("homeSpawn", "Bedroom", "You are now in your bedroom. You can either go down the hatch to the basement, or take the door and go out.",
             " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.");
+
         var basement = new Room("homeBasement", "Basement", "You are now in the basement.", " You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench," +
-            " hinting at various hobbies and pastimes." + " The air carries a faint scent of old books and wood. There is a key in the corner of the room."); 
-        
+            " hinting at various hobbies and pastimes." + " The air carries a faint scent of old books and wood. There is a key in the corner of the room.");
+
         var garden = new Room("garden", "Garden", "You are now in your garden. There is a gate at the end of your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery." +
             " The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
             " There is a big rusty gate that is covered in vines and greenery.");
@@ -148,6 +155,10 @@ public static class Program
         var forest = new Room("first part of forest outside the gate", "Forest", "You have ventured beyond the gate into a dense forest.",
                  " The towering trees create a natural canopy, casting dappled sunlight on the forest floor. A soft carpet of fallen leaves crunches beneath your feet as you explore." +
                  " The air is filled with the soothing sounds of rustling leaves, distant bird calls, and the occasional scampering of unseen creatures. A narrow trail leads deeper into the heart of the woods.");
+
+        var forest2 = new Room("deeper part of the forest", "Forest", "You have ventured further into the dense forest.",
+                "The trees here stand even taller, their branches intertwining to create an enchanting, shadowy grove. Sunlight struggles to pierce through the thick foliage, casting mystical patterns on the forest floor." +
+                " The air feels cooler, and a mysterious hush pervades the surroundings. The trail ahead narrows, winding through ancient trees that seem to whisper tales of the untamed wilderness.");
 
         home.Exits.Add("go down", basement);
         home.Exits.Add("go down the basement", basement);
@@ -159,12 +170,20 @@ public static class Program
         home.Exits.Add("go to garden", garden);
         basement.Exits.Add("go back", home);
         basement.Exits.Add("back", home);
-        basement.Exits.Add("go up", home); 
+        basement.Exits.Add("go up", home);
         garden.Exits.Add("go inside", home);
         garden.Exits.Add("go back inside", home);
         forest.Exits.Add("go to garden", garden);
         forest.Exits.Add("go back to garden", garden);
         forest.Exits.Add("back to garden", garden);
+
+
+        Game.State.Rooms.Add(home);
+        Game.State.Rooms.Add(basement);
+        Game.State.Rooms.Add(garden);
+        Game.State.Rooms.Add(forest);
+        Game.State.Rooms.Add(forest2);
+
 
         Key key = new Key(1, "Key");
         Door gate = new Door(1, forest, key, "gate", "key");
@@ -173,13 +192,11 @@ public static class Program
 
         basement.Item = key;
 
-        Game.State.LoadGame();
-
-        Game.State.CurrentRoom = home;
-        Game.State.VisitRoom(home);
-
-        // begin gameplay
+        JsonData jsonData = Game.State.LoadGame();
+        ConfigureGameStateFromJson(home, jsonData);
+        //begin gameplay
         Game.State.GameRunning = true;
+
         MainScreen();
         Console.WriteLine(Game.State.CurrentRoom.Description);
         Console.Write(" > ");
@@ -189,12 +206,12 @@ public static class Program
             string input = Console.ReadLine()!;
             Console.WriteLine();
             CommandResult response = HandleInput(input);
-             
+
             if (response.ClearScreen)
             {
                 Console.Clear();
             }
-            else if (response.Text == "unknown")
+            else if (!response.RecognizedCommand)
             {
                 Console.WriteLine("Unrecognized command.");
             }
@@ -203,7 +220,7 @@ public static class Program
                 Console.WriteLine(response.Text);
             }
             Console.Write(" > ");
-        }   
+        }
 
         static void MainScreen()
         {
@@ -231,20 +248,39 @@ public static class Program
             {
                 return Game.State.HelpPlayer();
             }
-             
+
             if (input.ToLower() == "show inventory" || input.ToLower() == "inventory")
             {
-                foreach (var item in Game.State.Player.Inventory)           
+                foreach (var item in Game.State.Player.Inventory)
                 {
-                    Console.WriteLine($" -  {item.Name}");         
+                    Console.WriteLine($" -  {item.Name}");
                 }
                 if (Game.State.Player.Inventory.Count < 1)
                 {
                     Console.WriteLine($" -  Your inventory is empty.");
                 }
-                return new CommandResult(Text: null, ClearScreen: false);
+                return new CommandResult(Text: null, ClearScreen: false, RecognizedCommand: true);
             }
             return Game.State.CurrentRoom.HandleInput(input);
         }
+    }
+
+    private static void ConfigureGameStateFromJson(Room home, JsonData jsonData)
+    {
+        //if CurrentRoom is null, the player has not played before which means that it
+        //should start in "home"
+        if (jsonData.Slug == null)
+        {
+            Game.State.CurrentRoom = home;
+            Game.State.VisitRoom(home);
+        }
+        else
+        {
+            //find the correct room with the slug as identifyer and make it into CurrentRoom
+            Game.State.CurrentRoom = Game.State.Rooms.FirstOrDefault(room => room.Slug == jsonData.Slug);
+        }
+
+        Game.State.Player.Inventory = jsonData.Player.Inventory;
+        Game.State.Player.Health = jsonData.Player.Health;
     }
 }
