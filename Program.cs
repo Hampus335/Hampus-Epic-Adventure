@@ -128,11 +128,15 @@ public class GameState
         File.WriteAllText(fileName, jsonData);
     }
 
-    public JsonData LoadGame()
+    public JsonData? LoadGame()
     {
-        var savedData = File.ReadAllText(@"PlayerData.json");
-        var jsonOutput = JsonSerializer.Deserialize<JsonData>(savedData);
-        return jsonOutput;
+        if (File.Exists(@"PlayerData.json"))
+        {
+            var savedData = File.ReadAllText(@"PlayerData.json");
+            var jsonOutput = JsonSerializer.Deserialize<JsonData>(savedData);
+            return jsonOutput;
+        }
+        else return null;
     }
 }
 
@@ -192,8 +196,9 @@ public static class Program
 
         basement.Item = key;
 
-        JsonData jsonData = Game.State.LoadGame();
+        JsonData? jsonData = Game.State.LoadGame();
         ConfigureGameStateFromJson(home, jsonData);
+
         //begin gameplay
         Game.State.GameRunning = true;
 
@@ -265,7 +270,7 @@ public static class Program
         }
     }
 
-    private static void ConfigureGameStateFromJson(Room home, JsonData jsonData)
+    private static void ConfigureGameStateFromJson(Room home, JsonData? jsonData)
     {
         //if CurrentRoom is null, the player has not played before which means that it
         //should start in "home"
