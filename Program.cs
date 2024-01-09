@@ -196,8 +196,16 @@ public static class Program
 
         basement.Item = key;
 
-        JsonData? jsonData = Game.State.LoadGame();
-        ConfigureGameStateFromJson(home, jsonData);
+        var savedGameData = Game.State.LoadGame();
+        if (savedGameData != null)
+        {
+            ConfigureGameStateFromJson(savedGameData);
+        }
+        else
+        {
+            Game.State.CurrentRoom = home;
+            Game.State.VisitRoom(home);
+        }
 
         //begin gameplay
         Game.State.GameRunning = true;
@@ -270,20 +278,10 @@ public static class Program
         }
     }
 
-    private static void ConfigureGameStateFromJson(Room home, JsonData? jsonData)
+    private static void ConfigureGameStateFromJson(JsonData jsonData)
     {
-        //if CurrentRoom is null, the player has not played before which means that it
-        //should start in "home"
-        if (jsonData.Slug == null)
-        {
-            Game.State.CurrentRoom = home;
-            Game.State.VisitRoom(home);
-        }
-        else
-        {
-            //find the correct room with the slug as identifyer and make it into CurrentRoom
-            Game.State.CurrentRoom = Game.State.Rooms.FirstOrDefault(room => room.Slug == jsonData.Slug);
-        }
+        //find the correct room with the slug as identifyer and make it into CurrentRoom
+        Game.State.CurrentRoom = Game.State.Rooms.FirstOrDefault(room => room.Slug == jsonData.Slug);
 
         Game.State.Player.Inventory = jsonData.Player.Inventory;
         Game.State.Player.Health = jsonData.Player.Health;
