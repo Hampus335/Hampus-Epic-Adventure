@@ -13,7 +13,7 @@ public class Player
 public class Room
 {
     public string Description { get; set; }
-    public Dictionary<string, Room> Exits { get; set; } = new();
+    public Dictionary<string, string> Exits { get; set; } = new();
     public string Slug { get; set; }
     public string Name { get; set; }
     public string DetailedDescription { get; set; }
@@ -34,9 +34,9 @@ public class Room
         {
             return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false, RecognizedCommand: true);
         }
-        if (Game.State.CurrentRoom.Exits.TryGetValue(input.ToLower(), out Room room))
+        if (Game.State.CurrentRoom.Exits.TryGetValue(input, out string destination))
         {
-            CommandResult result = Game.State.MoveToRoom(room);
+            CommandResult result = Game.State.MoveToRoom(destination);
             return result;
         }
 
@@ -85,7 +85,7 @@ public class GameState
 
     internal CommandResult HelpPlayer()
     {
-        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value.Slug).Select(x => x.Key)), ClearScreen: false, RecognizedCommand: true);
+        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)), ClearScreen: false, RecognizedCommand: true);
     }
 
     internal bool DetailedDescription(string input)
@@ -97,22 +97,17 @@ public class GameState
         else return false;
     }
 
-    internal CommandResult MoveToRoom(Room room)
+    internal CommandResult MoveToRoom(string destination)
     {
-        //return appropriate information if the player has visited tqrhe room. Returns a different text if the player hasn't visited the room previously.
-        if (CheckVisitedRoom(room.Slug))
-        {
-            CurrentRoom = room;
-            VisitRoom(CurrentRoom);
-            return new CommandResult(CurrentRoom.Name, ClearScreen: true);
-        }
+        Room? room = Game.State.Rooms.FirstOrDefault(room => room.Slug == destination);
+        CurrentRoom = room;
 
-        else
-        {
-            CurrentRoom = room;
-            VisitRoom(CurrentRoom);
-            return new CommandResult(CurrentRoom.Description, ClearScreen: true);
-        }       
+        var text = CheckVisitedRoom(destination)
+            ? CurrentRoom.Name
+            : CurrentRoom.Description;
+
+        VisitRoom(CurrentRoom);
+        return new CommandResult(text, ClearScreen: true);
     }
 
     internal void SaveGame()
@@ -120,7 +115,8 @@ public class GameState
         JsonData gameData = new JsonData
         {
             Slug = CurrentRoom.Slug,
-            Player = Game.State.Player
+            Player = Game.State.Player,
+            Rooms = Rooms
         };
 
         string jsonData = JsonSerializer.Serialize(gameData);
@@ -128,7 +124,7 @@ public class GameState
         File.WriteAllText(fileName, jsonData);
     }
 
-    public JsonData? LoadGame()
+    public JsonData LoadGame()
     {
         if (File.Exists(@"PlayerData.json"))
         {
@@ -156,30 +152,30 @@ public static class Program
             " The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
             " There is a big rusty gate that is covered in vines and greenery.");
 
-        var forest = new Room("first part of forest outside the gate", "Forest", "You have ventured beyond the gate into a dense forest.",
+        var forest = new Room("forest1", "Forest", "You have ventured beyond the gate into a dense forest.",
                  " The towering trees create a natural canopy, casting dappled sunlight on the forest floor. A soft carpet of fallen leaves crunches beneath your feet as you explore." +
                  " The air is filled with the soothing sounds of rustling leaves, distant bird calls, and the occasional scampering of unseen creatures. A narrow trail leads deeper into the heart of the woods.");
 
-        var forest2 = new Room("deeper part of the forest", "Forest", "You have ventured further into the dense forest.",
+        var forest2 = new Room("forest2", "Forest", "You have ventured further into the dense forest.",
                 "The trees here stand even taller, their branches intertwining to create an enchanting, shadowy grove. Sunlight struggles to pierce through the thick foliage, casting mystical patterns on the forest floor." +
                 " The air feels cooler, and a mysterious hush pervades the surroundings. The trail ahead narrows, winding through ancient trees that seem to whisper tales of the untamed wilderness.");
 
-        home.Exits.Add("go down", basement);
-        home.Exits.Add("go down the basement", basement);
-        home.Exits.Add("go down to the basement", basement);
-        home.Exits.Add("basement", basement);
-        home.Exits.Add("enter the basement", basement);
-        home.Exits.Add("go out", garden);
-        home.Exits.Add("go out to garden", garden);
-        home.Exits.Add("go to garden", garden);
-        basement.Exits.Add("go back", home);
-        basement.Exits.Add("back", home);
-        basement.Exits.Add("go up", home);
-        garden.Exits.Add("go inside", home);
-        garden.Exits.Add("go back inside", home);
-        forest.Exits.Add("go to garden", garden);
-        forest.Exits.Add("go back to garden", garden);
-        forest.Exits.Add("back to garden", garden);
+        home.Exits.Add("go down", "homeBasement");
+        home.Exits.Add("go down the basement", "Homebasement");
+        home.Exits.Add("go down to the basement", "Homebasement");
+        home.Exits.Add("basement", "Homebasement");
+        home.Exits.Add("enter the basement", "Homebasement");
+        home.Exits.Add("go out", "garden");
+        home.Exits.Add("go out to garden", "garden");
+        home.Exits.Add("go to garden", "garden");
+        basement.Exits.Add("go back", "homeSpawn");
+        basement.Exits.Add("back", "homeSpawn");
+        basement.Exits.Add("go up", "homeSpawn");
+        garden.Exits.Add("go inside", "homeSpawn");
+        garden.Exits.Add("go back inside", "homeSpawn");
+        forest.Exits.Add("go to garden", "garden");
+        forest.Exits.Add("go back to garden", "garden");
+        forest.Exits.Add("back to garden", "garden");
 
 
         Game.State.Rooms.Add(home);
@@ -190,8 +186,8 @@ public static class Program
 
 
         Key key = new Key(1, "Key");
-        Door gate = new Door(1, forest, key, "gate", "key");
-        gate.DoorLeadsTo = forest;
+        Door gate = new Door(1, "forest1", key, "gate", "key");
+        //gate.DoorLeadsTo = forest;
         garden.Interactives.Add(gate);
 
         basement.Item = key;
@@ -281,8 +277,8 @@ public static class Program
     private static void ConfigureGameStateFromJson(JsonData jsonData)
     {
         //find the correct room with the slug as identifyer and make it into CurrentRoom
+        Game.State.Rooms = jsonData.Rooms;
         Game.State.CurrentRoom = Game.State.Rooms.FirstOrDefault(room => room.Slug == jsonData.Slug);
-
         Game.State.Player.Inventory = jsonData.Player.Inventory;
         Game.State.Player.Health = jsonData.Player.Health;
     }

@@ -16,13 +16,13 @@ public class Door : InteractiveItem
     public int DoorID { get; set; }
     public Key Key { get; set; }
     public bool DoorOpen { get; set; }
-    public Room DoorLeadsTo { get; set; }
+    public string DoorLeadsToSlug { get; set; }
     public string DoorName { get; set; }
     public string KeyName { get; set; }
-    public Door(int doorID, Room doorLeadsTo, Key key, string doorName, string keyName)
+    public Door(int doorID, string doorLeadsToSlug, Key key, string doorName, string keyName)
     {
         DoorID = doorID;
-        DoorLeadsTo = doorLeadsTo;
+        DoorLeadsToSlug = doorLeadsToSlug;
         Key = key;
         DoorName = doorName;
         KeyName = keyName;
@@ -34,7 +34,7 @@ public class Door : InteractiveItem
         {
             if (DoorOpen)
             {
-                Game.State.MoveToRoom(DoorLeadsTo);
+                Game.State.MoveToRoom(DoorLeadsToSlug);
                 return new CommandResult(Text: $"Going through {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
         }
