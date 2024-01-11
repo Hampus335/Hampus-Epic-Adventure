@@ -8,8 +8,17 @@ namespace Hampus_Epic_Adventure;
 
 public class JsonData
 {
-    public Player? Player { get; set; }
-    public string? Slug { get; set; }
-    public List<Room> Rooms { get; set; }
+    public PlayerData PlayerData { get; set; }
+    public WorldData WorldData { get; set; }
 }
 
+public class PlayerData
+{
+    public Player? Player { get; set; }
+    public string? RoomSlug { get; set; }
+}
+
+public class WorldData
+{
+    public List<Room> Rooms { get; set; }
+}

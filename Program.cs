@@ -112,25 +112,41 @@ public class GameState
 
     internal void SaveGame()
     {
-        JsonData gameData = new JsonData
+        PlayerData playerData = new PlayerData()
         {
-            Slug = CurrentRoom.Slug,
+            RoomSlug = CurrentRoom.Slug,
             Player = Game.State.Player,
-            Rooms = Rooms
         };
 
-        string jsonData = JsonSerializer.Serialize(gameData);
-        string fileName = "PlayerData.json";
-        File.WriteAllText(fileName, jsonData);
+        WorldData worldData = new WorldData()
+        {
+            Rooms = Rooms
+        };
+        string jsonDataPlayer = JsonSerializer.Serialize(playerData);
+        string fileNamePlayer = "PlayerData.json";
+        File.WriteAllText(fileNamePlayer, jsonDataPlayer);
+
+        string jsonDataWorld = JsonSerializer.Serialize(worldData);
+        string fileNameWorld = "WorldData.json";
+        File.WriteAllText(fileNameWorld, jsonDataWorld);
     }
 
     public JsonData LoadGame()
     {
         if (File.Exists(@"PlayerData.json"))
         {
-            var savedData = File.ReadAllText(@"PlayerData.json");
-            var jsonOutput = JsonSerializer.Deserialize<JsonData>(savedData);
-            return jsonOutput;
+            var savedPlayerData = File.ReadAllText(@"PlayerData.json");
+            var jsonPlayerOutput = JsonSerializer.Deserialize<PlayerData>(savedPlayerData);
+
+            var savedWorldData = File.ReadAllText(@"WorldData.json");
+            var jsonWorldOutput = JsonSerializer.Deserialize<WorldData>(savedWorldData);
+
+            JsonData jsonData = new JsonData
+            {
+                PlayerData = jsonPlayerOutput,
+                WorldData = jsonWorldOutput
+            };
+            return jsonData;
         }
         else return null;
     }
@@ -161,10 +177,10 @@ public static class Program
                 " The air feels cooler, and a mysterious hush pervades the surroundings. The trail ahead narrows, winding through ancient trees that seem to whisper tales of the untamed wilderness.");
 
         home.Exits.Add("go down", "homeBasement");
-        home.Exits.Add("go down the basement", "Homebasement");
-        home.Exits.Add("go down to the basement", "Homebasement");
-        home.Exits.Add("basement", "Homebasement");
-        home.Exits.Add("enter the basement", "Homebasement");
+        home.Exits.Add("go down the basement", "homebasement");
+        home.Exits.Add("go down to the basement", "homebasement");
+        home.Exits.Add("basement", "homebasement");
+        home.Exits.Add("enter the basement", "homebasement");
         home.Exits.Add("go out", "garden");
         home.Exits.Add("go out to garden", "garden");
         home.Exits.Add("go to garden", "garden");
@@ -177,39 +193,38 @@ public static class Program
         forest.Exits.Add("go back to garden", "garden");
         forest.Exits.Add("back to garden", "garden");
 
-
+        
         Game.State.Rooms.Add(home);
         Game.State.Rooms.Add(basement);
         Game.State.Rooms.Add(garden);
         Game.State.Rooms.Add(forest);
         Game.State.Rooms.Add(forest2);
-
+        
 
         Key key = new Key(1, "Key");
         Door gate = new Door(1, "forest1", key, "gate", "key");
-        //gate.DoorLeadsTo = forest;
+        gate.DoorLeadsToSlug = forest.Slug;
         garden.Interactives.Add(gate);
-
         basement.Item = key;
 
         var savedGameData = Game.State.LoadGame();
         if (savedGameData != null)
         {
+            //player has played before, so we load the world and player data
             ConfigureGameStateFromJson(savedGameData);
         }
         else
         {
-            Game.State.CurrentRoom = home;
-            Game.State.VisitRoom(home);
+            //the player has not played before, so we load the spawnpoint
+            LoadStartpoint();
         }
 
-        //begin gameplay
         Game.State.GameRunning = true;
-
+       
         MainScreen();
         Console.WriteLine(Game.State.CurrentRoom.Description);
         Console.Write(" > ");
-
+        
         while (Game.State.GameRunning)
         {
             string input = Console.ReadLine()!;
@@ -274,12 +289,22 @@ public static class Program
         }
     }
 
+    private static void LoadStartpoint()
+    {
+        //first time that the player is playing, so we load the standard room
+        var savedWorldData = File.ReadAllText(@"WorldData.json");
+        var worldData = JsonSerializer.Deserialize<WorldData>(savedWorldData);
+
+        Game.State.CurrentRoom = worldData.Rooms.First();
+        Game.State.VisitRoom(Game.State.CurrentRoom);
+    }
+
     private static void ConfigureGameStateFromJson(JsonData jsonData)
     {
         //find the correct room with the slug as identifyer and make it into CurrentRoom
-        Game.State.Rooms = jsonData.Rooms;
-        Game.State.CurrentRoom = Game.State.Rooms.FirstOrDefault(room => room.Slug == jsonData.Slug);
-        Game.State.Player.Inventory = jsonData.Player.Inventory;
-        Game.State.Player.Health = jsonData.Player.Health;
+        Game.State.Rooms = jsonData.WorldData.Rooms;
+        Game.State.CurrentRoom = Game.State.Rooms.FirstOrDefault(room => room.Slug == jsonData.PlayerData.RoomSlug);
+        Game.State.Player.Inventory = jsonData.PlayerData.Player.Inventory;
+        Game.State.Player.Health = jsonData.PlayerData.Player.Health;
     }
 }
