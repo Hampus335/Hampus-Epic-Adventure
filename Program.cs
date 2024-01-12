@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using Hampus_Epic_Adventure;
 
@@ -8,8 +9,9 @@ public class Player
 {
     public int Health { get; set; } = 100;
     public List<Item> Inventory { get; set; } = new List<Item>();
-}   
+}
 
+[JsonDerivedType(typeof(Room), typeDiscriminator: "Interactives")]
 public class Room
 {
     public string Description { get; set; }
@@ -18,7 +20,7 @@ public class Room
     public string Name { get; set; }
     public string DetailedDescription { get; set; }
     public Item? Item { get; set; }
-    public List<InteractiveItem> Interactives = new List<InteractiveItem>();
+    public List<InteractiveItem> Interactives { get; set; }
     public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
     {   
         Slug = slug;
@@ -198,16 +200,17 @@ public static class Program
         Game.State.Rooms.Add(basement);
         Game.State.Rooms.Add(garden);
         Game.State.Rooms.Add(forest);
-        Game.State.Rooms.Add(forest2);
+        Game.State.Rooms.Add(forest2); 
         
 
         Key key = new Key(1, "Key");
         Door gate = new Door(1, "forest1", key, "gate", "key");
         gate.DoorLeadsToSlug = forest.Slug;
+        garden.Interactives = new List<InteractiveItem>();
         garden.Interactives.Add(gate);
         basement.Item = key;
 
-        var savedGameData = Game.State.LoadGame();
+        /*var savedGameData = Game.State.LoadGame();
         if (savedGameData != null)
         {
             //player has played before, so we load the world and player data
@@ -217,8 +220,10 @@ public static class Program
         {
             //the player has not played before, so we load the spawnpoint
             LoadStartpoint();
-        }
+        }*/
 
+        Game.State.CurrentRoom = home;
+        Game.State.VisitRoom(home);
         Game.State.GameRunning = true;
        
         MainScreen();
