@@ -11,24 +11,23 @@ public class Player
     public List<Item> Inventory { get; set; } = new List<Item>();
 }
 
-[JsonDerivedType(typeof(Room), typeDiscriminator: "Interactives")]
-public class Room
-{
-    public string Description { get; set; }
-    public Dictionary<string, string> Exits { get; set; } = new();
-    public string Slug { get; set; }
-    public string Name { get; set; }
-    public string DetailedDescription { get; set; }
-    public Item? Item { get; set; }
-    public List<InteractiveItem> Interactives { get; set; }
-    public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
-    {   
-        Slug = slug;
-        Name = name;
-        Description = description;
-        DetailedDescription = detailedDescription;
-        Item = item;
-    }
+    public class Room
+    {
+        public string Description { get; set; }
+        public Dictionary<string, string> Exits { get; set; } = new();
+        public string Slug { get; set; }
+        public string Name { get; set; }
+        public string DetailedDescription { get; set; }
+        public Item? Item { get; set; }
+        public List<InteractiveItem> Interactives { get; set; }
+        public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
+        {   
+            Slug = slug;
+            Name = name;
+            Description = description;
+            DetailedDescription = detailedDescription;
+            Item = item;
+        }
     internal CommandResult HandleInput(string input)
     {
         //command handler for specific room

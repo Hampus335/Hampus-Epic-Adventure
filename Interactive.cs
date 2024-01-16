@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Hampus_Epic_Adventure;
-
+[JsonDerivedType(typeof(Door), typeDiscriminator: "Door")]
 public abstract class InteractiveItem
 {
     public abstract CommandResult HandleInput(string input);
