@@ -19,7 +19,7 @@ public class Player
         public string Name { get; set; }
         public string DetailedDescription { get; set; }
         public Item? Item { get; set; }
-        public List<InteractiveItem> Interactives { get; set; }
+    public List<InteractiveItem> Interactives { get; set; } = new();
         public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
         {   
             Slug = slug;
@@ -159,7 +159,7 @@ public static class Program
     {
         //setup
 
-        var home = new Room("homeSpawn", "Bedroom", "You are now in your bedroom. You can either go down the hatch to the basement, or take the door and go out.",
+        /*var home = new Room("homeSpawn", "Bedroom", "You are now in your bedroom. You can either go down the hatch to the basement, or take the door and go out.",
             " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.");
 
         var basement = new Room("homeBasement", "Basement", "You are now in the basement.", " You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench," +
@@ -203,13 +203,14 @@ public static class Program
         
 
         Key key = new Key(1, "Key");
-        Door gate = new Door(1, "forest1", key, "gate", "key");
+        Door gate = new Door(1, "forest1", key, "gate"  , "key");
         gate.DoorLeadsToSlug = forest.Slug;
         garden.Interactives = new List<InteractiveItem>();
         garden.Interactives.Add(gate);
         basement.Item = key;
+        */
 
-        /*var savedGameData = Game.State.LoadGame();
+        var savedGameData = Game.State.LoadGame();
         if (savedGameData != null)
         {
             //player has played before, so we load the world and player data
@@ -219,12 +220,8 @@ public static class Program
         {
             //the player has not played before, so we load the spawnpoint
             LoadStartpoint();
-        }*/
-
-        Game.State.CurrentRoom = home;
-        Game.State.VisitRoom(home);
+        }
         Game.State.GameRunning = true;
-       
         MainScreen();
         Console.WriteLine(Game.State.CurrentRoom.Description);
         Console.Write(" > ");
