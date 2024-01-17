@@ -19,7 +19,7 @@ public class Player
         public string Name { get; set; }
         public string DetailedDescription { get; set; }
         public Item? Item { get; set; }
-    public List<InteractiveItem> Interactives { get; set; } = new();
+        public List<InteractiveItem> Interactives { get; set; } = new();
         public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
         {   
             Slug = slug;
@@ -67,6 +67,7 @@ public class GameState
     public Room CurrentRoom { get; internal set; }
 
     static HashSet<string> VisitedRooms = new HashSet<string>();
+    public Room? LastRoom;
 
     public void VisitRoom(Room room)
     {
@@ -83,9 +84,15 @@ public class GameState
         else return false;
     }
 
-
     internal CommandResult HelpPlayer()
     {
+        foreach (InteractiveItem g in CurrentRoom.Interactives)
+        {
+            if (g != null)
+            {
+                Console.WriteLine(g.DisplayHelp());
+            }
+        }
         return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)), ClearScreen: false, RecognizedCommand: true);
     }
 
@@ -100,7 +107,9 @@ public class GameState
 
     internal CommandResult MoveToRoom(string destination)
     {
+        //changes room with the slug as identifyer
         Room? room = Game.State.Rooms.FirstOrDefault(room => room.Slug == destination);
+        LastRoom = CurrentRoom;
         CurrentRoom = room;
 
         var text = CheckVisitedRoom(destination)
@@ -109,6 +118,15 @@ public class GameState
 
         VisitRoom(CurrentRoom);
         return new CommandResult(text, ClearScreen: true);
+    }
+
+    internal CommandResult MoveToPreviousRoom(string destination)
+    {
+        if (LastRoom != null)
+        {
+            return MoveToRoom(LastRoom.Slug);
+        }
+        else return new CommandResult(Text: "There is no previous room available", ClearScreen: false, RecognizedCommand: true);
     }
 
     internal void SaveGame()
@@ -157,59 +175,6 @@ public static class Program
 {
     public static void Main()
     {
-        //setup
-
-        /*var home = new Room("homeSpawn", "Bedroom", "You are now in your bedroom. You can either go down the hatch to the basement, or take the door and go out.",
-            " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.");
-
-        var basement = new Room("homeBasement", "Basement", "You are now in the basement.", " You look around and see a dimly lit space with cool air. It's filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench," +
-            " hinting at various hobbies and pastimes." + " The air carries a faint scent of old books and wood. There is a key in the corner of the room.");
-
-        var garden = new Room("garden", "Garden", "You are now in your garden. There is a gate at the end of your garden.", "You see a vibrant and lively outdoor space. It's adorned with an array of colorful flowers, blooming bushes, and lush greenery." +
-            " The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There's a mix of fragrances from various flowers, adding to the pleasant atmosphere." +
-            " There is a big rusty gate that is covered in vines and greenery.");
-
-        var forest = new Room("forest1", "Forest", "You have ventured beyond the gate into a dense forest.",
-                 " The towering trees create a natural canopy, casting dappled sunlight on the forest floor. A soft carpet of fallen leaves crunches beneath your feet as you explore." +
-                 " The air is filled with the soothing sounds of rustling leaves, distant bird calls, and the occasional scampering of unseen creatures. A narrow trail leads deeper into the heart of the woods.");
-
-        var forest2 = new Room("forest2", "Forest", "You have ventured further into the dense forest.",
-                "The trees here stand even taller, their branches intertwining to create an enchanting, shadowy grove. Sunlight struggles to pierce through the thick foliage, casting mystical patterns on the forest floor." +
-                " The air feels cooler, and a mysterious hush pervades the surroundings. The trail ahead narrows, winding through ancient trees that seem to whisper tales of the untamed wilderness.");
-
-        home.Exits.Add("go down", "homeBasement");
-        home.Exits.Add("go down the basement", "homebasement");
-        home.Exits.Add("go down to the basement", "homebasement");
-        home.Exits.Add("basement", "homebasement");
-        home.Exits.Add("enter the basement", "homebasement");
-        home.Exits.Add("go out", "garden");
-        home.Exits.Add("go out to garden", "garden");
-        home.Exits.Add("go to garden", "garden");
-        basement.Exits.Add("go back", "homeSpawn");
-        basement.Exits.Add("back", "homeSpawn");
-        basement.Exits.Add("go up", "homeSpawn");
-        garden.Exits.Add("go inside", "homeSpawn");
-        garden.Exits.Add("go back inside", "homeSpawn");
-        forest.Exits.Add("go to garden", "garden");
-        forest.Exits.Add("go back to garden", "garden");
-        forest.Exits.Add("back to garden", "garden");
-
-        
-        Game.State.Rooms.Add(home);
-        Game.State.Rooms.Add(basement);
-        Game.State.Rooms.Add(garden);
-        Game.State.Rooms.Add(forest);
-        Game.State.Rooms.Add(forest2); 
-        
-
-        Key key = new Key(1, "Key");
-        Door gate = new Door(1, "forest1", key, "gate"  , "key");
-        gate.DoorLeadsToSlug = forest.Slug;
-        garden.Interactives = new List<InteractiveItem>();
-        garden.Interactives.Add(gate);
-        basement.Item = key;
-        */
-
         var savedGameData = Game.State.LoadGame();
         if (savedGameData != null)
         {
@@ -254,6 +219,7 @@ public static class Program
             Console.WriteLine("To play the game, type short phrases into the command line.");
             Console.WriteLine("If you type \"look\", the game gives you a description of");
             Console.WriteLine("your surroundings which may be neccessary for you to solve some puzzles. Typing \"show inventory\" tells you what you're carrying.");
+            Console.WriteLine("If you want to go back, you can say \"go back\", and you will go back to the previous room if there is one");
             Console.WriteLine("Type \"help\" if you are not able to move on from where you are.");
             Console.WriteLine("Press any key to continue.");
             Console.ReadKey();
@@ -272,6 +238,11 @@ public static class Program
             if (input.ToLower() == "help")
             {
                 return Game.State.HelpPlayer();
+            }
+
+            if (input.ToLower() == "go back" || input.ToLower() == "back")
+            {
+                return Game.State.MoveToPreviousRoom(input);
             }
 
             if (input.ToLower() == "show inventory" || input.ToLower() == "inventory")

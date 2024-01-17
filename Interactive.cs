@@ -10,6 +10,11 @@ namespace Hampus_Epic_Adventure;
 public abstract class InteractiveItem
 {
     public abstract CommandResult HandleInput(string input);
+
+    public virtual string DisplayHelp()
+    {
+        return null;
+    }
 }
 
 public class Door : InteractiveItem
@@ -20,6 +25,8 @@ public class Door : InteractiveItem
     public string DoorLeadsToSlug { get; set; }
     public string DoorName { get; set; }
     public string KeyName { get; set; }
+    public bool DoorVisited { get; set; } = false;
+    public string DoorHint { get; set; }
     public Door(int doorID, string doorLeadsToSlug, Key key, string doorName, string keyName)
     {
         DoorID = doorID;
@@ -27,6 +34,12 @@ public class Door : InteractiveItem
         Key = key;
         DoorName = doorName;
         KeyName = keyName;
+        DoorHint = $"Go through the {DoorName}";
+    }
+
+    public override string DisplayHelp()
+    {
+        return DoorHint;
     }
 
     public override CommandResult HandleInput(string input)
@@ -36,7 +49,16 @@ public class Door : InteractiveItem
             if (DoorOpen)
             {
                 Game.State.MoveToRoom(DoorLeadsToSlug);
-                return new CommandResult(Text: $"Going through {DoorName}.", ClearScreen: false, RecognizedCommand: true);
+
+                if (DoorVisited)
+                {
+                    return new CommandResult(Text: $"Going through {DoorName}. \nYou are now in the {Game.State.CurrentRoom.Name}", ClearScreen: true, RecognizedCommand: true);
+                }
+                else
+                {
+                    DoorVisited = true;
+                    return new CommandResult(Text: $"Going through {DoorName}. \n{Game.State.CurrentRoom.Description}", ClearScreen: true, RecognizedCommand: true);
+                }
             }
         }
 
