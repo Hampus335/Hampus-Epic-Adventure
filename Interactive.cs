@@ -34,7 +34,7 @@ public class Door : InteractiveItem
         Key = key;
         DoorName = doorName;
         KeyName = keyName;
-        DoorHint = $"Go through the {DoorName}";
+        DoorHint = $"Find the {KeyName} and go through the {DoorName}";
     }
 
     public override string DisplayHelp()
@@ -67,7 +67,9 @@ public class Door : InteractiveItem
             if (Game.State.Player.Inventory.Any(item => item is Key key) && Key.ID == DoorID)
             {
                 DoorOpen = true;
-                Game.State.Player.Inventory.Remove(Key);
+                Game.State.Player.Inventory.Remove(Game.State.Player.Inventory.First(item => item is Key key && key.ID == DoorID));
+                DoorHint = $"Go through the gate by saying \"go through gate\"";
+
                 return new CommandResult(Text: $"The {DoorName} is now open.", ClearScreen: false, RecognizedCommand: true);
             }
             else if (Game.State.Player.Inventory.Contains(Key))

@@ -86,14 +86,16 @@ public class GameState
 
     internal CommandResult HelpPlayer()
     {
+        List<string> interactiveHelp = new List<string>();
         foreach (InteractiveItem g in CurrentRoom.Interactives)
         {
             if (g != null)
             {
-                Console.WriteLine(g.DisplayHelp());
+                interactiveHelp.Add(g.DisplayHelp());
             }
         }
-        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)), ClearScreen: false, RecognizedCommand: true);
+
+        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)) + $" or {String.Join(", or", interactiveHelp.Distinct()).ToLower()}", ClearScreen: false, RecognizedCommand: true);
     }
 
     internal bool DetailedDescription(string input)
@@ -267,6 +269,7 @@ public static class Program
         var savedWorldData = File.ReadAllText(@"WorldData.json");
         var worldData = JsonSerializer.Deserialize<WorldData>(savedWorldData);
 
+        Game.State.Rooms = worldData.Rooms;
         Game.State.CurrentRoom = worldData.Rooms.First();
         Game.State.VisitRoom(Game.State.CurrentRoom);
     }
