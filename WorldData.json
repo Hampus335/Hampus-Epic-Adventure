@@ -1,0 +1,87 @@
+{
+  "Rooms": [
+    {
+      "Description": "You are now in your bedroom. You can either go down the hatch to the basement, or take the door and go out.",
+      "Exits": {
+        "go down": "homeBasement",
+        "go down the basement": "homeBasement",
+        "go down to the basement": "homeBasement",
+        "basement": "homeBasement",
+        "enter the basement": "homeBasement",
+        "go out": "garden",
+        "go out to garden": "garden",
+        "go to garden": "garden"
+      },
+      "Slug": "homeSpawn",
+      "Name": "Bedroom",
+      "DetailedDescription": " When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There\u0027s a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.",
+      "Item": null,
+      "Interactives": [
+      ]
+    },
+    {
+      "Description": "You are now in the basement.",
+      "Exits": {
+        "go up": "homeSpawn"
+      },
+      "Slug": "homeBasement",
+      "Name": "Basement",
+      "DetailedDescription": " You look around and see a dimly lit space with cool air. It\u0027s filled with stored items, neatly arranged against the walls. There are shelves, boxes, and a workbench, hinting at various hobbies and pastimes. The air carries a faint scent of old books and wood. There is a key in the corner of the room.",
+      "Item": null,
+      "Interactives": [
+      ]
+    },
+    {
+      "Description": "You are now in your garden. There is a gate at the end of your garden.",
+      "Exits": {
+        "go inside": "homeSpawn",
+        "go back inside": "homeSpawn",
+        "go home": "homeSpawn"
+      },
+      "Slug": "garden",
+      "Name": "Garden",
+      "DetailedDescription": "You see a vibrant and lively outdoor space. It\u0027s adorned with an array of colorful flowers, blooming bushes, and lush greenery. The gentle rustle of leaves and the occasional chirping of birds fill the air. A well-tended path winds through the garden, inviting you to explore its beauty. There\u0027s a mix of fragrances from various flowers, adding to the pleasant atmosphere. There is a big rusty gate that is covered in vines and greenery.",
+      "Item": null,
+      "Interactives": [
+        {
+          "$type": "Door",
+          "DoorID": 1,
+          "Key": {
+            "ID": 1,
+            "Name": "Key"
+          },
+          "DoorOpen": true,
+          "DoorLeadsToSlug": "forest1",
+          "DoorName": "gate",
+          "KeyName": "key",
+          "DoorVisited": false
+        }
+      ]
+    },
+    {
+      "Description": "You have ventured beyond the gate into a dense forest.",
+      "Exits": {
+        "go to garden": "garden",
+        "go back to garden": "garden",
+        "back to garden": "garden"
+      },
+      "Slug": "forest1",
+      "Name": "Forest",
+      "DetailedDescription": " The towering trees create a natural canopy, casting dappled sunlight on the forest floor. A soft carpet of fallen leaves crunches beneath your feet as you explore. The air is filled with the soothing sounds of rustling leaves, distant bird calls, and the occasional scampering of unseen creatures. A narrow trail leads deeper into the heart of the woods.",
+      "Item": null,
+      "Interactives": [
+      ]
+    },
+    {
+      "Description": "You have ventured further into the dense forest.",
+      "Exits": {
+      },
+      "Slug": "forest2",
+      "Name": "Forest",
+      "DetailedDescription": "The trees here stand even taller, their branches intertwining to create an enchanting, shadowy grove. Sunlight struggles to pierce through the thick foliage, casting mystical patterns on the forest floor. The air feels cooler, and a mysterious hush pervades the surroundings. The trail ahead narrows, winding through ancient trees that seem to whisper tales of the untamed wilderness.",
+      "Item": null,
+      "Interactives": [
+      ]
+    }
+  ]
+}
