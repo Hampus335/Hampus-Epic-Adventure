@@ -89,13 +89,31 @@ public class GameState
         List<string> interactiveHelp = new List<string>();
         foreach (InteractiveItem g in CurrentRoom.Interactives)
         {
-            if (g != null)
-            {
-                interactiveHelp.Add(g.DisplayHelp());
-            }
+            var help = g.DisplayHelp();
+            if (help is not null)
+            interactiveHelp.Add(help);
         }
 
-        return new CommandResult("To get out of this place, you can use " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)) + $" or {String.Join(", or", interactiveHelp.Distinct()).ToLower()}", ClearScreen: false, RecognizedCommand: true);
+        //the room has interactives but no item
+        if (interactiveHelp.Count > 0 && CurrentRoom.Item == null)
+        {
+            return new CommandResult("To get out of this place, you can say " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)) + $" or {String.Join(", or", interactiveHelp.Distinct()).ToLower()}", ClearScreen: false, RecognizedCommand: true);
+        }
+
+        //the room has an item but no interactives
+        if (CurrentRoom.Item != null && interactiveHelp.Count == 0)
+        {
+            return new CommandResult("To get out of this place, you can say " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)) + $", or {CurrentRoom.Item.DisplayHelp().ToLower()}", ClearScreen: false, RecognizedCommand: true);
+        }
+
+        //the room has both an item and interactives
+        if (CurrentRoom.Item != null && interactiveHelp.Count > 0)
+        {
+            return new CommandResult("To get out of this place, you can say " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)) + $" or{String.Join(", or", interactiveHelp.Distinct()).ToLower()}" + $" or {CurrentRoom.Item.DisplayHelp().ToLower()}", ClearScreen: false, RecognizedCommand: true);
+        }
+
+        //the room has neither an item nor an interactive
+        return new CommandResult("To get out of this place, you can say " + String.Join(", and ", CurrentRoom.Exits.DistinctBy(x => x.Value).Select(x => x.Key)), ClearScreen: false, RecognizedCommand: true);
     }
 
     internal bool DetailedDescription(string input)

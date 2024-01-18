@@ -11,7 +11,7 @@ public abstract class InteractiveItem
 {
     public abstract CommandResult HandleInput(string input);
 
-    public virtual string DisplayHelp()
+    public virtual string? DisplayHelp()
     {
         return null;
     }
@@ -39,7 +39,17 @@ public class Door : InteractiveItem
 
     public override string DisplayHelp()
     {
-        return DoorHint;
+        if (Game.State.Player.Inventory.Any(item => item is Key key) && Key.ID == DoorID)
+        {
+            DoorHint = $"Say unlock {DoorName} so you can open the door.";
+            return DoorHint;
+        }
+        else if (DoorOpen)
+        {
+            DoorHint = $"Go through the gate by saying \"go through {DoorName}\"";
+            return DoorHint;
+        }
+        else return DoorHint;
     }
 
     public override CommandResult HandleInput(string input)
@@ -68,14 +78,17 @@ public class Door : InteractiveItem
             {
                 DoorOpen = true;
                 Game.State.Player.Inventory.Remove(Game.State.Player.Inventory.First(item => item is Key key && key.ID == DoorID));
-                DoorHint = $"Go through the gate by saying \"go through gate\"";
-
                 return new CommandResult(Text: $"The {DoorName} is now open.", ClearScreen: false, RecognizedCommand: true);
             }
             else if (Game.State.Player.Inventory.Contains(Key))
             {
                 return new CommandResult(Text: $"This is not the right {KeyName.ToLower()} for this {DoorName}.", ClearScreen: false, RecognizedCommand: true);
             }
+            else if (DoorOpen) 
+            {
+                return new CommandResult(Text: $"You have already unlocked this {DoorName}", ClearScreen: false, RecognizedCommand: true);
+            }
+
             else
             {
                 return new CommandResult(Text: $"You need a {KeyName.ToLower()} here.", ClearScreen: false, RecognizedCommand: true);
