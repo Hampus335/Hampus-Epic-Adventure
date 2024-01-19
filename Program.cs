@@ -93,7 +93,6 @@ public class GameState
             if (help is not null)
             interactiveHelp.Add(help);
         }
-
         //the room has interactives but no item
         if (interactiveHelp.Count > 0 && CurrentRoom.Item == null)
         {
