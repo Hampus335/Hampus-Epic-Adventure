@@ -20,6 +20,7 @@ public class Player
         public string DetailedDescription { get; set; }
         public Item? Item { get; set; }
         public List<InteractiveItem> Interactives { get; set; } = new();
+        public Monster? Monster { get; set; }
         public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
         {   
             Slug = slug;
@@ -35,6 +36,12 @@ public class Player
         {
             return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false, RecognizedCommand: true);
         }
+
+        if (Monster != null)
+        {
+            Console.WriteLine(Monster.Description);
+        }
+
         if (Game.State.CurrentRoom.Exits.TryGetValue(input, out string destination))
         {
             CommandResult result = Game.State.MoveToRoom(destination);
