@@ -22,7 +22,9 @@ namespace Hampus_Epic_Adventure
         public void DealDamage()
         {
             Random random = new Random();
-            Game.State.Player.Health -= random.Next(15, 30);
+            int damageDealt = random.Next(15, 30);
+            Game.State.Player.Health =- damageDealt;
+            Console.WriteLine($"The monster {Name} attacks, dealing {damageDealt} damage.");
         }
 
         public string DisplayHelp()
