@@ -32,11 +32,9 @@ public class Key : Item
 
 public class Sword : Item
 {
-    public int ID { get; set; }
     public string ItemHint { get; set; }
-    public Sword(int id, string name)
+    public Sword(string name)
     {
-        ID = id;
         Name = name;
         ItemHint = $"Pick up the {Name}, by saying \"take {Name}\".";
     }

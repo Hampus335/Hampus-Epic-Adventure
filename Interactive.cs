@@ -34,7 +34,7 @@ public class Door : InteractiveItem
         Key = key;
         DoorName = doorName;
         KeyName = keyName;
-        DoorHint = $"Find the {KeyName} and go through the {DoorName}";
+        DoorHint = $"search for the {KeyName} so you can go through the {DoorName}";
     }
 
     public override string DisplayHelp()

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,13 +22,14 @@ public class Player
         public Item? Item { get; set; }
         public List<InteractiveItem> Interactives { get; set; } = new();
         public Monster? Monster { get; set; }
-        public Room(string slug, string name, string description, string detailedDescription, Item? item = null)
+    public Room(string slug, string name, string description, string detailedDescription, Item? item = null, Monster? monster = null)
         {   
             Slug = slug;
             Name = name;
             Description = description;
             DetailedDescription = detailedDescription;
             Item = item;
+            Monster = monster;
         }
     internal CommandResult HandleInput(string input)
     {
@@ -35,11 +37,6 @@ public class Player
         if (Game.State.DetailedDescription(input))
         {
             return new CommandResult(Game.State.CurrentRoom.Description + " " + Game.State.CurrentRoom.DetailedDescription, ClearScreen: false, RecognizedCommand: true);
-        }
-
-        if (Monster != null)
-        {
-            Console.WriteLine(Monster.Description);
         }
 
         if (Game.State.CurrentRoom.Exits.TryGetValue(input, out string destination))
@@ -55,13 +52,37 @@ public class Player
             return result;
         }
 
-        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
+        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "take the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
         {
             Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
             Game.State.CurrentRoom.Item = null;
             return new CommandResult(Text: "You picked up a " + Game.State.Player.Inventory.Last().Name.ToString(), ClearScreen: false, RecognizedCommand: true);
         }
         else return new CommandResult(ClearScreen: false, RecognizedCommand: false);
+    }
+
+    internal void OnEnter()
+    {
+        if (Game.State.CurrentRoom.Monster != null)
+        {   
+            HandleMonster();         
+        }
+    }
+
+    private void HandleMonster()
+    {
+        Console.WriteLine(Game.State.CurrentRoom.Monster.Description);
+        Random random = new Random();
+        random.Next(0, 101);
+        if (random > 75)
+        {
+
+        }
+
+        if (!Game.State.Player.Inventory.Any(item => item is Sword sword))
+        {
+            Game.State.CurrentRoom.Monster.DealDamage();
+        }
     }
 }
 
@@ -137,6 +158,8 @@ public class GameState
         Room? room = Game.State.Rooms.FirstOrDefault(room => room.Slug == destination);
         LastRoom = CurrentRoom;
         CurrentRoom = room;
+
+        CurrentRoom.OnEnter();
 
         var text = CheckVisitedRoom(destination)
             ? CurrentRoom.Name
