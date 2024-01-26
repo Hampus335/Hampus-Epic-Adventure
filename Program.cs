@@ -10,6 +10,13 @@ public class Player
 {
     public int Health { get; set; } = 100;
     public List<Item> Inventory { get; set; } = new List<Item>();
+
+    internal void Dies()
+    {
+        Console.WriteLine("You have now died");
+        Console.WriteLine("Game Over");
+        Game.State.GameRunning = false;
+    }
 }
 
     public class Room
@@ -71,25 +78,32 @@ public class Player
 
     private void HandleMonster()
     {
-        Console.WriteLine(Monster.Description);
         Random random = new Random();
 
         if (Game.State.Player.Inventory.Any(item => item is Sword sword))//behöver göra så att det inte är endast svärd, kan vara andra items än svärd med
         {
             if (random.Next(0, 101) > 75)
             {
+                Console.WriteLine(Monster.Description);
                 while (Monster.Health >= 0)
                 {
                     Monster.DealDamage();
 
                     Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}.");
+
+                    if (Console.ReadLine() == $"use {Monster.CorrectItem}")
+                    {
+                        Monster.TakeDamage();
+                    }
                 }
             }
+            else return;
             //else no monster spawned, so we can enter the room without issues 
         }
+        
 
         //the player has no sword, so the chance of not having a monster is reduced
-        if (!Game.State.Player.Inventory.Any(item => item is Sword monsterWeapon))
+        else
         {
             if (random.Next(0, 101) > 20)
             {

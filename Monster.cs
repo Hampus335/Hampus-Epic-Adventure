@@ -16,8 +16,8 @@ namespace Hampus_Epic_Adventure
             Health = health;
             Name = name;
             CorrectItem = correctItem;
-            Description = description; //$"There is a monster named {Name} here. You would need a {CorrectItem} to defend yourself.";
-            Hint = hint; //$"Find the {CorrectItem} to defeat {Name}";
+            Description = $"There is a monster named {Name} here. You would need a {CorrectItem} to defend yourself.";
+            Hint = $"Find the {CorrectItem} to defeat {Name}";
         }
         public void DealDamage()
         {
@@ -35,6 +35,15 @@ namespace Hampus_Epic_Adventure
                 return Hint;
             }
             else return Hint;
+        }
+
+        internal void TakeDamage()
+        { 
+            //if player is dead
+            if (Game.State.Player.Health <= 0)
+            {
+                Game.State.Player.Dies();
+            }
         }
     }
 }
