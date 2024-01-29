@@ -82,17 +82,18 @@ public class Player
 
         if (Game.State.Player.Inventory.Any(item => item is Sword sword))//behöver göra så att det inte är endast svärd, kan vara andra items än svärd med
         {
-            if (random.Next(0, 101) > 75)
+            if (random.Next(0, 101) > 55)
             {
-                Console.WriteLine(Monster.Description);
                 while (Monster.Health >= 0)
                 {
+                    Console.WriteLine(Monster.Description);
                     Monster.DealDamage();
 
                     Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}.");
 
-                    if (Console.ReadLine() == $"use {Monster.CorrectItem}")
+                    if (Console.ReadLine().ToLower() == $"use {Monster.CorrectItem}".ToLower())
                     {
+                        Monster.Hint = $"use your {Monster.CorrectItem} by saying \"use {Monster.CorrectItem}\"";
                         Monster.TakeDamage();
                     }
                 }

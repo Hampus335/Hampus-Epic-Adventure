@@ -16,15 +16,24 @@ namespace Hampus_Epic_Adventure
             Health = health;
             Name = name;
             CorrectItem = correctItem;
-            Description = $"There is a monster named {Name} here. You would need a {CorrectItem} to defend yourself.";
+            Description = $"There is a monster named {Name} here.";
             Hint = $"Find the {CorrectItem} to defeat {Name}";
         }
         public void DealDamage()
         {
-            Random random = new Random();
-            int damageDealt = random.Next(15, 30);
-            Game.State.Player.Health =- damageDealt;
-            Console.WriteLine($"The monster {Name} attacks, dealing {damageDealt} damage.");
+            //if player is dead
+            if (Game.State.Player.Health <= 0)
+            {
+                Game.State.Player.Dies();
+            }
+            else
+            {
+                Random random = new Random();
+                int damageDealt = random.Next(25, 35);
+                Game.State.Player.Health = Game.State.Player.Health - damageDealt;
+                Console.WriteLine($"The monster {Name} attacks, dealing {damageDealt} damage.");
+                Console.WriteLine($"You now have {Game.State.Player.Health} health left.");
+            }
         }
 
         public string DisplayHelp()
@@ -38,12 +47,11 @@ namespace Hampus_Epic_Adventure
         }
 
         internal void TakeDamage()
-        { 
-            //if player is dead
-            if (Game.State.Player.Health <= 0)
-            {
-                Game.State.Player.Dies();
-            }
+        {
+            Random random = new Random();
+            int damageDealt = random.Next(25, 45);
+            Game.State.CurrentRoom.Monster.Health = -damageDealt;
+            Console.WriteLine($"You attack {Name} with your {CorrectItem}, dealing {damageDealt} damage.");
         }
     }
 }
