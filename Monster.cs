@@ -48,9 +48,10 @@ namespace Hampus_Epic_Adventure
 
         internal void TakeDamage()
         {
+            Console.Clear();
             Random random = new Random();
             int damageDealt = random.Next(25, 45);
-            Game.State.CurrentRoom.Monster.Health = -damageDealt;
+            Game.State.CurrentRoom.Monster.Health = Game.State.CurrentRoom.Monster.Health - damageDealt;
             Console.WriteLine($"You attack {Name} with your {CorrectItem}, dealing {damageDealt} damage.");
         }
     }

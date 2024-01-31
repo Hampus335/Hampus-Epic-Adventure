@@ -63,7 +63,7 @@ public class Player
         {
             Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
             Game.State.CurrentRoom.Item = null;
-            return new CommandResult(Text: "You picked up a " + Game.State.Player.Inventory.Last().Name.ToString(), ClearScreen: false, RecognizedCommand: true);
+            return new CommandResult(Text: "You picked up a " + Game.State.Player.Inventory.Last().Name.ToString().ToLower(), ClearScreen: false, RecognizedCommand: true);
         }
         else return new CommandResult(ClearScreen: false, RecognizedCommand: false);
     }
@@ -91,9 +91,8 @@ public class Player
 
                     Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}.");
 
-                    if (Console.ReadLine().ToLower() == $"use {Monster.CorrectItem}".ToLower())
+                    if (Console.ReadLine()?.ToLower() == $"use {Monster.CorrectItem}".ToLower() || Console.ReadLine()?.ToLower() == $"use {Monster.CorrectItem}".ToLower())
                     {
-                        Monster.Hint = $"use your {Monster.CorrectItem} by saying \"use {Monster.CorrectItem}\"";
                         Monster.TakeDamage();
                     }
                 }
@@ -108,7 +107,16 @@ public class Player
         {
             if (random.Next(0, 101) > 20)
             {
-                Monster.DealDamage();
+                while (Monster.Health >= 0)
+                {
+                    Monster.DealDamage();
+                    Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to flee from {Monster.Name} by pressing any key");
+
+                    if (Console.ReadLine().ToLower() == "go back")
+                    {
+                        break;
+                    }
+                }
             }
         }
     }
