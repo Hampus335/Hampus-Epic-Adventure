@@ -89,11 +89,16 @@ public class Player
                     Console.WriteLine(Monster.Description);
                     Monster.DealDamage();
 
-                    Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}.");
+                    Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with, by saying \"go back\"");
 
-                    if (Console.ReadLine()?.ToLower() == $"use {Monster.CorrectItem}".ToLower() || Console.ReadLine()?.ToLower() == $"use {Monster.CorrectItem}".ToLower())
+                    if (Console.ReadLine()?.ToLower() == $"use {Monster.CorrectItem}".ToLower() || Console.ReadLine()?.ToLower() == $"use the {Monster.CorrectItem}".ToLower())
                     {
                         Monster.TakeDamage();
+                    }
+                    else if (Console.ReadLine().ToLower() == "go back")
+                    {
+                        break;
+                        Game.State.MoveToRoom("forest1");
                     }
                 }
             }
@@ -110,11 +115,12 @@ public class Player
                 while (Monster.Health >= 0)
                 {
                     Monster.DealDamage();
-                    Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to flee from {Monster.Name} by pressing any key");
+                    Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to flee from {Monster.Name} by pressing enter.");
 
                     if (Console.ReadLine().ToLower() == "go back")
                     {
                         break;
+                        Game.State.MoveToRoom("forest1");
                     }
                 }
             }

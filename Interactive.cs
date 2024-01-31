@@ -41,7 +41,7 @@ public class Door : InteractiveItem
     {
         if (Game.State.Player.Inventory.Any(item => item is Key key) && Key.ID == DoorID)
         {
-            DoorHint = $"Say unlock \"the {DoorName}\" so you can open the door.";
+            DoorHint = $"Say \"unlock the {DoorName}\" so you can open the door.";
             return DoorHint;
         }
         else if (DoorOpen)
