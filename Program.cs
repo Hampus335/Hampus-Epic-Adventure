@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.ComponentModel.Design;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
@@ -84,43 +85,56 @@ public class Player
         {
             if (random.Next(0, 101) > 55)
             {
+                Console.WriteLine(Monster.Description);
+
                 while (Monster.Health >= 0)
                 {
-                    Console.WriteLine(Monster.Description);
                     Monster.DealDamage();
 
-                    Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with, by saying \"go back\"");
+                    Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with if needed, by saying \"go back\"");
 
-                    if (Console.ReadLine()?.ToLower() == $"use {Monster.CorrectItem}".ToLower() || Console.ReadLine()?.ToLower() == $"use the {Monster.CorrectItem}".ToLower())
+                    string? input = Console.ReadLine().ToLower();
+
+                    if (input == $"use {Monster.CorrectItem}".ToLower() || input == $"use the {Monster.CorrectItem}".ToLower())
                     {
                         Monster.TakeDamage();
                     }
-                    else if (Console.ReadLine().ToLower() == "go back")
+                    else if (input == "go back")
                     {
-                        break;
                         Game.State.MoveToRoom("forest1");
+                        break;
                     }
+                }
+
+                if (Game.State.CurrentRoom.Monster.Health <= 0)
+                {
+                    Monster = null;
                 }
             }
             else return;
             //else no monster spawned, so we can enter the room without issues 
         }
         
-
-        //the player has no sword, so the chance of not having a monster is reduced
         else
+        //the player has no sword, so the chance of not having a monster is reduced
         {
             if (random.Next(0, 101) > 20)
             {
                 while (Monster.Health >= 0)
                 {
+                    //chance of fleeing the monster
+                    if (random.Next(0, 10) < 3)
+                    {
+                        break;
+                    }
+
                     Monster.DealDamage();
-                    Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to flee from {Monster.Name} by pressing enter.");
+                    Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
 
                     if (Console.ReadLine().ToLower() == "go back")
                     {
-                        break;
                         Game.State.MoveToRoom("forest1");
+                        break;
                     }
                 }
             }

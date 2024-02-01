@@ -26,10 +26,16 @@ namespace Hampus_Epic_Adventure
             {
                 Game.State.Player.Dies();
             }
+            Random random = new Random();
+            int damageDealt = random.Next(0, 35);
+
+            if (damageDealt <= 7)
+            {
+                Console.WriteLine($"The monster {Name} attacks, but misses, so you don't take any damage.");
+                Console.WriteLine($"You still have {Game.State.Player.Health} health left.");
+            }
             else
             {
-                Random random = new Random();
-                int damageDealt = random.Next(25, 35);
                 Game.State.Player.Health = Game.State.Player.Health - damageDealt;
                 Console.WriteLine($"The monster {Name} attacks, dealing {damageDealt} damage.");
                 Console.WriteLine($"You now have {Game.State.Player.Health} health left.");
@@ -52,7 +58,16 @@ namespace Hampus_Epic_Adventure
             Random random = new Random();
             int damageDealt = random.Next(25, 45);
             Game.State.CurrentRoom.Monster.Health = Game.State.CurrentRoom.Monster.Health - damageDealt;
-            Console.WriteLine($"You attack {Name} with your {CorrectItem}, dealing {damageDealt} damage.");
+
+            if (Game.State.CurrentRoom.Monster.Health <= 0)
+            {
+                Console.WriteLine($"You attack {Name} with your {CorrectItem}, killing him completley.");
+            }
+            else
+            {
+                Console.WriteLine($"You attack {Name} with your {CorrectItem}, dealing {damageDealt} damage.");
+                Console.WriteLine($"{Game.State.CurrentRoom.Monster.Name} has {Game.State.CurrentRoom.Monster.Health} health left.");
+            }
         }
     }
 }
