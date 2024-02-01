@@ -93,7 +93,13 @@
     },
     {
       "Description": "You have ventured further into the dense forest.",
-      "Exits": {},
+      "Exits": {
+        "go to forest": "forest1",
+        "forest": "forest1",
+        "go to cave": "mysticalCaveEntrance",
+        "cave": "mysticalCaveEntrance",
+        "go to the cave": "mysticalCaveEntrance"
+      },
       "Slug": "forest2",
       "Name": "Forest",
       "DetailedDescription": "The trees here stand even taller, their branches intertwining to create an enchanting, shadowy grove. Sunlight struggles to pierce through the thick foliage, casting mystical patterns on the forest floor. The air feels cooler, and a mysterious hush pervades the surroundings. The trail ahead narrows, winding through ancient trees that seem to whisper tales of the untamed wilderness.",
@@ -101,14 +107,37 @@
       "Interactives": [],
       "Monster": {
         "Health": 100,
-        "Name": "J�rgen",
+        "Name": "Stefan",
         "CorrectItem": {
           "$type": "Sword",
           "Name": "Sword"
         },
-        "Description": "There is a monster named Jörgen here.",
+        "Description": "There is a monster named Stefan here.",
         "Hint": "Find the correct item to defeat monster"
       }
+    },
+    {
+      "Description": "You find yourself at the entrance of a mystical cave.",
+      "Exits": {
+        "go to forest": "forest2",
+        "enter cave": "mysticalCave"
+      },
+      "Slug": "mysticalCaveEntrance",
+      "Name": "Mystical Cave Entrance",
+      "DetailedDescription": "The cave entrance is adorned with glowing crystals, illuminating the surroundings with an ethereal light. Strange symbols are etched into the cave walls, hinting at ancient mysteries. The air inside is cool and tinged with a hint of magic.",
+      "Item": null,
+      "Interactives": [],
+      "Monster": null
+    },
+    {
+      "Description": "You have entered the mystical cave.",
+      "Exits": {
+        "go back to cave entrance": "mysticalCaveEntrance",
+        "exit cave": "mysticalCaveEntrance"
+      },
+      "Slug": "mysticalCave",
+      "Name": "Mystical Cave",
+      "DetailedDescription": "The cave's interior is a mesmerizing display of shimmering crystals and otherworldly formations. A faint hum of mystical energy fills the air, creating an otherworldly atmosphere. The path ahead splits into multiple tunnels"
     }
   ]
 }

@@ -99,6 +99,11 @@ public class Player
                     {
                         Monster.TakeDamage();
                     }
+                    else if (input == "help")
+                    {
+                        Monster.DisplayHelp();
+                    }
+
                     else if (input == "go back")
                     {
                         Game.State.MoveToRoom("forest1");
@@ -109,6 +114,8 @@ public class Player
                 if (Game.State.CurrentRoom.Monster.Health <= 0)
                 {
                     Monster = null;
+                    Console.WriteLine("Press any key to continue");
+                    Console.ReadKey();
                 }
             }
             else return;
