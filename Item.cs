@@ -3,43 +3,49 @@
 
 [JsonDerivedType(typeof(Key), typeDiscriminator: "Key")]
 [JsonDerivedType(typeof(Sword), typeDiscriminator: "Sword")]
+[JsonDerivedType(typeof(Heal), typeDiscriminator: "Heal")]
+
 
 public class Item
 {
     public string? Name { get; set; }
+    public string? Hint { get; set; }
 
     public virtual string? DisplayHelp()
     {
-        return null;
+        return Hint;
     }
 }
 
 public class Key : Item
 {
     public int ID { get; set; }
-    public string ItemHint { get; set; }
     public Key(int id, string name)
     {
         ID = id;
         Name = name;
-        ItemHint = $"Pick up the {Name}, by saying \"take {Name}\".";
-    }
-    public override string? DisplayHelp()
-    {
-        return ItemHint;
+        Hint = $"Pick up the {Name}, by saying \"take {Name}\".";
     }
 }
 
 public class Sword : Item
 {
-    public string ItemHint { get; set; }
     public Sword(string name)
     {
         Name = name;
-        ItemHint = $"Pick up the {Name}, by saying \"take {Name}\".";
+        Hint = $"Pick up the {Name}, by saying \"take {Name}\".";
     }
-    public override string? DisplayHelp()
+}
+
+public class Heal : Item
+{
+    public int Amount { get; set; }
+    public string Description { get; set; }
+    public Heal(string name, int amount, string description)
     {
-        return ItemHint;
+        Name = name;
+        Amount = amount;
+        Description = $"Consume the \"{description}\"";
+        Hint = $"Pick up the {Name} by saying \"take {Name}\".";
     }
 }

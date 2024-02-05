@@ -1,26 +1,29 @@
 {
   "Rooms": [
     {
-      "Description": "You are now in your bedroom. You can either go down the hatch to the basement or take the door and go out.",
+      "Description": "You are now in your bedroom. You can either go up the ladder to the attic, or go down the hatch to the basement. You can also take the door and go out.",
       "Exits": {
+        "go up": "homeAttic",
         "go down": "homeBasement",
-        "go down the basement": "homeBasement",
-        "go down to the basement": "homeBasement",
-        "basement": "homeBasement",
-        "enter the basement": "homeBasement",
-        "go out": "garden",
-        "go out to garden": "garden",
-        "go to garden": "garden"
-      },
-      "Slug": "homeSpawn",
-      "Name": "Bedroom",
-      "DetailedDescription": "When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.",
-      "Item": {
-        "$type": "Sword",
-        "Name": "Sword"
+        "go out": "garden"
       },
       "Interactives": [],
       "Monster": null
+    },
+    {
+      "Description": "You are now in your attic.",
+      "Exits": {
+        "go down": "homeSpawn"
+      },
+      "Slug": "homeAttic",
+      "Name": "Attic",
+      "DetailedDescription": "In the attic's shadows, forgotten memories gather dust. Cracked photo albums and vintage trinkets whisper tales of bygone days. The flickering light reveals a tapestry of nostalgia, as moth-eaten curtains sway in the gentle breeze. An old rocking chair sits still, holding echoes of laughter and quiet moments. The attic, a silent witness to the passage of time, guards its memories with a quiet, timeless charm.",
+      "Item": {
+        "$type": "Heal",
+        "Name": "Crystalized Nectar",
+        "Amount": 50,
+        "Description": "a rare and potent treat that heals wounds"
+      }
     },
     {
       "Description": "You are now in the basement.",
@@ -42,9 +45,7 @@
     {
       "Description": "You are now in your garden. There is a gate at the end of your garden.",
       "Exits": {
-        "go inside": "homeSpawn",
-        "go back inside": "homeSpawn",
-        "go home": "homeSpawn"
+        "go inside": "homeSpawn"
       },
       "Slug": "garden",
       "Name": "Garden",
@@ -72,17 +73,7 @@
       "Description": "You have ventured beyond the gate into a dense forest.",
       "Exits": {
         "go to garden": "garden",
-        "go back to garden": "garden",
-        "back to garden": "garden",
-        "go further into the forest": "forest2",
-        "go further into forest": "forest2",
-        "deeper into the forest": "forest2",
-        "walk deeper into the forest": "forest2",
-        "walk deeper into forest": "forest2",
-        "go deeper into the forest": "forest2",
-        "go deeper into forest": "forest2",
-        "walk further into the forest": "forest2",
-        "walk further into forest": "forest2"
+        "go further into the forest": "forest2"
       },
       "Slug": "forest1",
       "Name": "Forest",
@@ -95,10 +86,7 @@
       "Description": "You have ventured further into the dense forest.",
       "Exits": {
         "go to forest": "forest1",
-        "forest": "forest1",
-        "go to cave": "mysticalCaveEntrance",
-        "cave": "mysticalCaveEntrance",
-        "go to the cave": "mysticalCaveEntrance"
+        "go to cave": "mysticalCaveEntrance"
       },
       "Slug": "forest2",
       "Name": "Forest",
@@ -132,8 +120,7 @@
     {
       "Description": "You have entered the mystical cave.",
       "Exits": {
-        "go back to cave entrance": "mysticalCaveEntrance",
-        "exit cave": "mysticalCaveEntrance"
+        "go back to cave entrance": "mysticalCaveEntrance"
       },
       "Slug": "mysticalCave",
       "Name": "Mystical Cave",
