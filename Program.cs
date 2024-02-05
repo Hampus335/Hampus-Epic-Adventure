@@ -60,7 +60,7 @@ public class Player
             return result;
         }
 
-        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "take the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
+        if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "take the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pick up the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pickup the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pick up " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pickup " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
         {
             Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
             Game.State.CurrentRoom.Item = null;
