@@ -115,7 +115,6 @@ public class Player
 
                     else if (input == "go back")
                     {
-                        //Game.State.MoveToRoom("forest1");
                         Game.State.MoveToRoom(Game.State.LastRoom.Slug);
                         break;
                     }
@@ -140,9 +139,15 @@ public class Player
                 while (Monster.Health >= 0)
                 {
                     //chance of fleeing the monster
-                    if (random.Next(0, 10) < 3)
+                    for (int i = 0; i > 1; i++)
                     {
-                        break;
+                        if (random.Next(0, 11) < 2)
+                        {
+                            Console.WriteLine($"You escaped from {Monster.Name}, for now");
+                            Console.WriteLine($"Press any key to continue");
+                            Console.ReadKey();
+                            break;
+                        }
                     }
 
                     Monster.DealDamage();
@@ -152,18 +157,22 @@ public class Player
                     if (health != null)
                     {
                         Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
-                        Console.WriteLine($"You can also eat your {health.Name} to increase health. (Say \"Eat {health.Name}\"");
+                        Console.WriteLine($"You can also eat your {health.Name} to increase your health. (Say \"Eat {health.Name}\")");
                     }
                     else
                     {
                         Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
                     }
 
-
-                    if (Console.ReadLine().ToLower() == "go back")
+                    string input = Console.ReadLine().ToLower();
+                    if (input == "go back")
                     {
                         Game.State.MoveToRoom(Game.State.LastRoom.Slug);
                         break;
+                    }
+                    else if (input == $"eat {health.Name.ToLower()}" && health != null)
+                    {
+                        //add health to player
                     }
                 }
             }
