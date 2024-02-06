@@ -91,6 +91,12 @@ public class Player
                 {
                     Monster.DealDamage();
 
+                    //see if player has item to regain health
+                    if (Game.State.Player.Inventory.FirstOrDefault(heal => Heal == ))
+                    {
+                        Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with if needed, by eating your {}");
+                    }
+
                     Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with if needed, by saying \"go back\"");
 
                     string? input = Console.ReadLine().ToLower();
