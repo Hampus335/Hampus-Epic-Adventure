@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
 
 namespace Hampus_Epic_Adventure
@@ -42,11 +43,16 @@ namespace Hampus_Epic_Adventure
             }
         }
 
-        public string DisplayHelp()
+        public string DisplayHelp(Item health)
         {
             if (Game.State.Player.Inventory.Any(item => CorrectItem is Item correctItem))
             {
                 Hint = $"Kill {Name} by using the {CorrectItem}. Say \"use {CorrectItem}\"";
+                return Hint;
+            }
+            if (health != null && Game.State.Player.Health < 100)
+            {
+                Hint = $"Kill {Name} by using the {CorrectItem}. Say \"use {CorrectItem}\". If you need health, you can use your {health.Name} to regain health";
                 return Hint;
             }
             else return Hint;

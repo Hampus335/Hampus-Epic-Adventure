@@ -92,12 +92,15 @@ public class Player
                     Monster.DealDamage();
 
                     //see if player has item to regain health
-                    if (null != Game.State.Player.Inventory.FirstOrDefault(x => x is Heal))
+                    Item? health = Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
+                    if (health != null)
                     {
-                        Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with if needed, by eating your {x}");
+                        Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or eat your {health.Name} to increase health. (Say \"Eat {health.Name}\"");
                     }
-
-                    Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with if needed, by saying \"go back\"");
+                    else
+                    {
+                        Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or flee to search for something to increase your health with if needed, by saying \"go back\"");
+                    }
 
                     string? input = Console.ReadLine().ToLower();
 
@@ -107,12 +110,13 @@ public class Player
                     }
                     else if (input == "help")
                     {
-                        Monster.DisplayHelp();
+                        Monster.DisplayHelp(health);
                     }
 
                     else if (input == "go back")
                     {
-                        Game.State.MoveToRoom("forest1");
+                        //Game.State.MoveToRoom("forest1");
+                        Game.State.MoveToRoom(Game.State.LastRoom.Slug);
                         break;
                     }
                 }
@@ -124,8 +128,8 @@ public class Player
                     Console.ReadKey();
                 }
             }
-            else return;
-            //else no monster spawned, so we can enter the room without issues 
+         //else no monster spawned, so we can enter the room without issues 
+         else return;
         }
         
         else
@@ -142,11 +146,23 @@ public class Player
                     }
 
                     Monster.DealDamage();
-                    Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
+
+                    //see if player has item to regain health
+                    Item? health = Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
+                    if (health != null)
+                    {
+                        Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
+                        Console.WriteLine($"You can also eat your {health.Name} to increase health. (Say \"Eat {health.Name}\"");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
+                    }
+
 
                     if (Console.ReadLine().ToLower() == "go back")
                     {
-                        Game.State.MoveToRoom("forest1");
+                        Game.State.MoveToRoom(Game.State.LastRoom.Slug);
                         break;
                     }
                 }
