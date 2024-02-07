@@ -63,8 +63,9 @@ public class Player
         if ("take " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "take the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "grab the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pick up the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pickup the " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pick up " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower() || "pickup " + Game.State.CurrentRoom.Item?.Name.ToLower() == input.ToLower())
         {
             Game.State.Player.Inventory.Add(Game.State.CurrentRoom.Item);
+            string? itemDescription = Game.State.CurrentRoom.Item.Description;
             Game.State.CurrentRoom.Item = null;
-            return new CommandResult(Text: "You picked up a " + Game.State.Player.Inventory.Last().Name.ToString().ToLower(), ClearScreen: false, RecognizedCommand: true);
+            return new CommandResult(Text: "You picked up a " + Game.State.Player.Inventory.Last().Name.ToString().ToLower() + itemDescription, ClearScreen: false, RecognizedCommand: true);
         }
         else return new CommandResult(ClearScreen: false, RecognizedCommand: false);
     }
@@ -92,10 +93,12 @@ public class Player
                     Monster.DealDamage();
 
                     //see if player has item to regain health
-                    Item? health = Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
+                    Heal? health = (Heal?)Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
                     if (health != null)
                     {
-                        Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or eat your {health.Name} to increase health. (Say \"Eat {health.Name}\"");
+                        Console.WriteLine($"You can use your {Monster.CorrectItem} to defend yourself from {Monster.Name}, or eat your {health.Name?.ToLower()} to increase health.");
+                        Console.WriteLine($"(\"Use {Monster.CorrectItem.Name.ToLower()}\")");
+                        Console.WriteLine($"(\"Eat {health.Name?.ToLower()}\")");
                     }
                     else
                     {
@@ -118,6 +121,29 @@ public class Player
                         Game.State.MoveToRoom(Game.State.LastRoom.Slug);
                         break;
                     }
+                    else if (health != null && input == $"eat {health?.Name?.ToLower()}" || input == $"use {health?.Name?.ToLower()}" || input == $"eat the {health?.Name?.ToLower()}" || input == $"use the {health?.Name?.ToLower()}")
+                    {
+                        Game.State.Player.Health = Game.State.Player.Health + health.Amount;
+                        Game.State.Player.Inventory.Remove(health);
+
+                        int healthBefore = Game.State.Player.Health;
+                        if (Game.State.Player.Health >= 100)
+                        {
+                            int excessHealth = Game.State.Player.Health - 100;   // Calculate the excess health
+                            int usefulHealth = health.Amount - excessHealth;     // Calculate the effective health used
+
+                            //player health can't be over 100
+                            Game.State.Player.Health = 100;                     // Set player's health to the maximum (100)
+
+                            Console.WriteLine($"You eat your {health.Name.ToLower()} and get a {usefulHealth} health boost.");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine($"You eat your {health.Name.ToLower()} and get a {health.Amount} health boost.");
+                        }
+                    }
+
                 }
 
                 if (Game.State.CurrentRoom.Monster.Health <= 0)
@@ -149,15 +175,14 @@ public class Player
                             break;
                         }
                     }
-
+                    Console.WriteLine(Monster.Description);
                     Monster.DealDamage();
 
                     //see if player has item to regain health
-                    Item? health = Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
+                    Heal? health = (Heal?)Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
                     if (health != null)
                     {
-                        Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\" or continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
-                        Console.WriteLine($"You can also eat your {health.Name} to increase your health. (Say \"Eat {health.Name}\")");
+                        Console.WriteLine($"If you want to escape from {Monster.Name}, either go back to try and find the sword by saying \"go back\". You can also eat your {health.Name} by saying \"eat {health.Name}\". You can also continue trying to fight {Monster.Name} without a {Monster.CorrectItem} by pressing enter.");
                     }
                     else
                     {
@@ -170,9 +195,17 @@ public class Player
                         Game.State.MoveToRoom(Game.State.LastRoom.Slug);
                         break;
                     }
-                    else if (input == $"eat {health.Name.ToLower()}" && health != null)
+                    else if (input == $"eat {health.Name.ToLower()}" || input == $"use {health.Name.ToLower()}" || input == $"eat the {health.Name.ToLower()}" || input == $"use the {health.Name.ToLower()}")
                     {
-                        //add health to player
+                        Console.WriteLine($"You eat your {health.Name.ToLower()} and get a {health.Amount} health boost");
+                        Game.State.Player.Health = Game.State.Player.Health + health.Amount;
+                        Game.State.Player.Inventory.Remove(health);
+
+                        if (Game.State.Player.Health >= 100)
+                        {
+                            //player health can't be over 100
+                            Game.State.Player.Health = 100;
+                        }
                     }
                 }
             }
@@ -400,6 +433,34 @@ public static class Program
                 }
                 return new CommandResult(Text: null, ClearScreen: false, RecognizedCommand: true);
             }
+
+            if (input.ToLower() == "show health" || input.ToLower() == "health")
+            {
+                return new CommandResult(Text: $"You have {Game.State.Player.Health.ToString()} health", ClearScreen: false, RecognizedCommand: true);
+            }
+
+            Heal? health = (Heal?)Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
+            if (health != null && input == $"eat {health?.Name?.ToLower()}" || input == $"use {health?.Name?.ToLower()}" || input == $"eat the {health?.Name?.ToLower()}" || input == $"use the {health?.Name?.ToLower()}")
+            {
+                 Game.State.Player.Health = Game.State.Player.Health + health.Amount;
+                 Game.State.Player.Inventory.Remove(health);
+
+                int healthBefore = Game.State.Player.Health;
+                if (Game.State.Player.Health >= 100)
+                {
+                    int excessHealth = Game.State.Player.Health - 100;   // Calculate the excess health
+                    int usefulHealth = health.Amount - excessHealth;     // Calculate the effective health used
+
+                    //player health can't be over 100
+                    Game.State.Player.Health = 100;                     // Set player's health to the maximum (100)
+
+                    return new CommandResult(Text: $"You eat your {health.Name.ToLower()} and get a {usefulHealth} health boost.", ClearScreen: false, RecognizedCommand: true);
+
+                }
+                return new CommandResult(Text: $"You eat your {health.Name.ToLower()} and get a {health.Amount} health boost.", ClearScreen: false, RecognizedCommand: true);
+
+            }
+
             return Game.State.CurrentRoom.HandleInput(input);
         }
     }

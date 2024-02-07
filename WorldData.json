@@ -31,7 +31,8 @@
       "DetailedDescription": "When you look around, you can see a cozy, sunlit bedroom with artwork on the walls. There's a comfortable bed, a nightstand, a dresser, and a window with white curtains. A reading nook with an armchair and a bookshelf is nearby.",
       "Item": {
         "$type": "Sword",
-        "Name": "Sword"
+        "Name": "Sword",
+        "Description": "forged to conquer shadows and defy darkness with every strike."
       },
       "Interactives": [],
       "Monster": null
@@ -49,7 +50,7 @@
         "$type": "Heal",
         "Name": "Crystalized Nectar",
         "Amount": 50,
-        "Description": "a rare and potent treat that heals wounds"
+        "Description": "a rare and potent treat that heals wounds."
       }
     },
     {
@@ -64,7 +65,7 @@
         "$type": "Key",
         "ID": 1,
         "Name": "Key",
-        "Interactives": []
+        "Description": "an ancient key, silent yet powerful, unlocking mysteries within the garden's depths."
       },
       "Interactives": [],
       "Monster": null
