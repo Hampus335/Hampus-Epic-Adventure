@@ -146,7 +146,7 @@ public class Player
 
                 }
 
-                if (Game.State.CurrentRoom.Monster.Health <= 0)
+                if (Game.State.CurrentRoom.Monster?.Health <= 0)
                 {
                     Monster = null;
                     Console.WriteLine("Press any key to continue");
@@ -442,8 +442,8 @@ public static class Program
             Heal? health = (Heal?)Game.State.Player.Inventory.FirstOrDefault(x => x is Heal);
             if (health != null && input == $"eat {health?.Name?.ToLower()}" || input == $"use {health?.Name?.ToLower()}" || input == $"eat the {health?.Name?.ToLower()}" || input == $"use the {health?.Name?.ToLower()}")
             {
-                 Game.State.Player.Health = Game.State.Player.Health + health.Amount;
-                 Game.State.Player.Inventory.Remove(health);
+                Game.State.Player.Health = Game.State.Player.Health + health.Amount;
+                Game.State.Player.Inventory.Remove(health);
 
                 int healthBefore = Game.State.Player.Health;
                 if (Game.State.Player.Health >= 100)
@@ -454,11 +454,12 @@ public static class Program
                     //player health can't be over 100
                     Game.State.Player.Health = 100;                     // Set player's health to the maximum (100)
 
-                    return new CommandResult(Text: $"You eat your {health.Name.ToLower()} and get a {usefulHealth} health boost.", ClearScreen: false, RecognizedCommand: true);
-
+                    Console.WriteLine($"You eat your {health.Name.ToLower()} and get a {usefulHealth} health boost.");
                 }
-                return new CommandResult(Text: $"You eat your {health.Name.ToLower()} and get a {health.Amount} health boost.", ClearScreen: false, RecognizedCommand: true);
-
+                else
+                {
+                    Console.WriteLine($"You eat your {health.Name.ToLower()} and get a {health.Amount} health boost.");
+                }
             }
 
             return Game.State.CurrentRoom.HandleInput(input);

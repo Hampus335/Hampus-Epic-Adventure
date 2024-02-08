@@ -65,7 +65,7 @@
         "$type": "Key",
         "ID": 1,
         "Name": "Key",
-        "Description": "an ancient key, silent yet powerful, unlocking mysteries within the garden's depths."
+        "Description": "silent yet powerful, unlocking mysteries within the garden's depths."
       },
       "Interactives": [],
       "Monster": null
